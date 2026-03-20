@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <title>🥚 La Chasse aux Œufs d'Or</title>
-<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800;900&display=swap');
 
@@ -157,29 +157,6 @@ body { font-family:'Nunito',sans-serif; background:linear-gradient(160deg,#FFF0F
 @keyframes wv { 0%,100%{transform:scaleY(.5)} 50%{transform:scaleY(1)} }
 
 /* ── QR SCANNER ── */
-.qr-wrap   { margin-bottom:14px; }
-.qr-open-btn {
-  display:flex; align-items:center; justify-content:center; gap:10px;
-  width:100%; padding:16px;
-  background:linear-gradient(135deg,var(--sky),#2563EB);
-  border:none; border-radius:50px; color:#fff;
-  font-size:1rem; font-weight:800; font-family:'Nunito',sans-serif;
-  cursor:pointer; box-shadow:0 5px 20px rgba(77,150,255,.45); transition:all .2s;
-}
-.qr-open-btn:active { transform:scale(.97); }
-.qr-viewport { margin-top:12px; border-radius:var(--rs); overflow:hidden; display:none; position:relative; border:3px solid var(--yellow); background:#000; }
-.qr-viewport.active { display:block; }
-.qr-viewport video { width:100%; display:block; max-height:280px; object-fit:cover; }
-.qr-viewport .overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; }
-.qr-frame { width:60%; aspect-ratio:1; border:3px solid var(--yellow); border-radius:14px; box-shadow:0 0 0 1000px rgba(0,0,0,.45); animation:qrPulse 2s ease-in-out infinite; }
-@keyframes qrPulse {
-  0%,100% { box-shadow:0 0 0 1000px rgba(0,0,0,.45), 0 0 10px rgba(255,217,61,.4); }
-  50%      { box-shadow:0 0 0 1000px rgba(0,0,0,.45), 0 0 32px rgba(255,217,61,1);  }
-}
-.qr-status { text-align:center; font-size:.82rem; font-weight:800; color:var(--mid); margin-top:8px; min-height:1.4em; }
-.qr-status.ok  { color:var(--mint); }
-.qr-status.err { color:#E05A5A; }
-
 /* ── NUMBER ── */
 .num-row { display:flex; align-items:center; justify-content:center; gap:20px; margin-bottom:14px; }
 .num-btn { width:54px; height:54px; border-radius:50%; border:3px solid var(--lav-l); background:#fff; font-size:1.7rem; cursor:pointer; font-weight:900; color:var(--lav); transition:all .2s; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(199,125,255,.25); }
@@ -361,8 +338,8 @@ const KIDS = [
 // ══════════════════════════════════════════════
 const STEPS = [
   { id:1,  loc:'Grand Arbre',       ico:'🌳', col:'c1',
-    txt:'Bienvenue, aventuriers ! Scannez le QR code magique accroché sur le Grand Arbre pour recevoir le message du Lapin Magique !',
-    type:'qr',
+    txt:'Bienvenue, aventuriers ! Approchez-vous du Grand Arbre et appuyez sur le bouton pour écouter le message secret du Lapin Magique !',
+    type:'action', actLbl:'🌟 Message écouté — On part à l\'aventure !',
     celIco:'🌟', celTtl:'Super !', celMsg:'Le Grand Arbre vous a délivré son message !' },
 
   { id:2,  loc:'La Cave',           ico:'🥚', col:'c2',
@@ -446,14 +423,12 @@ const STEPS = [
 // ══════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════
-let step       = 1;
-let unlocked   = [false, false, false];
-let numVals    = {};
-let audElems   = {};
-let curAud     = null;
-let fps        = {};          // fingerprints  { stepId: { kidIdx: bool } }
-let qrStream   = null;
-let qrFrame    = null;
+let step     = 1;
+let unlocked = [false, false, false];
+let numVals  = {};
+let audElems = {};
+let curAud   = null;
+let fps      = {};
 
 // ══════════════════════════════════════════════
 // BACKGROUND FLOATERS
@@ -564,28 +539,11 @@ function render(s) {
 }
 
 function buildContent(s) {
-  // Fingerprints sur étapes 2-13 (pas départ QR ni final)
-  const needFP = s.id > 1 && s.id < 14;
+  // Fingerprints sur toutes les étapes sauf la finale
+  const needFP = s.id < 14;
   let h = needFP ? buildFP(s.id) : '';
 
   switch (s.type) {
-
-    case 'qr':
-      // Étape 1 : scanner QR → joue l'audio correspondant
-      h += `
-        <div class="qr-wrap">
-          <button class="qr-open-btn" id="qrOpenBtn-${s.id}" onclick="openQR(${s.id})">
-            📷 Scanner le QR Code Magique
-          </button>
-          <div class="qr-viewport" id="qrView-${s.id}">
-            <video id="qrVid-${s.id}" autoplay playsinline muted></video>
-            <div class="overlay"><div class="qr-frame"></div></div>
-          </div>
-          <div class="qr-status" id="qrStat-${s.id}">Appuie sur le bouton pour activer la caméra</div>
-        </div>
-        <div class="fb" id="fb-${s.id}"></div>
-        <button class="nxt-btn hidden" id="nxt-${s.id}" onclick="goNext()">Continuer l'aventure ! ✨</button>`;
-      break;
 
     case 'number':
       h += audioBtn(s.id) + `
@@ -664,87 +622,6 @@ function attachListeners(s) {
     const inp = document.getElementById(`ans-${s.id}`);
     if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') valText(s.id); });
   }
-}
-
-// ══════════════════════════════════════════════
-// QR SCANNER — getUserMedia (HTTPS requis ✅)
-// ══════════════════════════════════════════════
-async function openQR(sid) {
-  stopQR();
-  const view   = document.getElementById(`qrView-${sid}`);
-  const stat   = document.getElementById(`qrStat-${sid}`);
-  const openBt = document.getElementById(`qrOpenBtn-${sid}`);
-  const vid    = document.getElementById(`qrVid-${sid}`);
-
-  stat.textContent = '🔍 Activation de la caméra…';
-  stat.className   = 'qr-status';
-
-  try {
-    qrStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
-    });
-    vid.srcObject = qrStream;
-    await vid.play();
-
-    view.classList.add('active');
-    if (openBt) openBt.textContent = '⏹ Fermer la caméra';
-    if (openBt) openBt.onclick = () => { stopQR(); if(openBt){ openBt.textContent='📷 Scanner le QR Code Magique'; openBt.onclick=()=>openQR(sid); } };
-
-    stat.textContent = '🔍 Pointez vers le QR code…';
-    qrFrame = requestAnimationFrame(() => scanLoop(sid, vid));
-
-  } catch (err) {
-    let msg = '📷 Erreur caméra — vérifie les permissions du navigateur.';
-    if (err.name === 'NotAllowedError')  msg = '📷 Permission refusée. Autorise la caméra dans les réglages, puis réessaie.';
-    if (err.name === 'NotFoundError')    msg = '📷 Aucune caméra trouvée sur cet appareil.';
-    if (err.name === 'NotReadableError') msg = '📷 Caméra déjà utilisée par une autre appli.';
-    stat.textContent = msg;
-    stat.className = 'qr-status err';
-    // Afficher quand même le bouton Continuer en fallback
-    showFb(sid, msg + ' — Appuie sur Continuer pour passer.', false);
-    document.getElementById(`nxt-${sid}`)?.classList.remove('hidden');
-  }
-}
-
-function scanLoop(sid, vid) {
-  if (!qrStream) return;
-
-  const canvas = document.createElement('canvas');
-  if (!vid || vid.readyState < 2 || vid.videoWidth === 0) {
-    qrFrame = requestAnimationFrame(() => scanLoop(sid, vid));
-    return;
-  }
-
-  canvas.width  = vid.videoWidth;
-  canvas.height = vid.videoHeight;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(vid, 0, 0);
-
-  let code = null;
-  try { code = jsQR(ctx.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height); } catch(e) {}
-
-  if (code && code.data) {
-    stopQR();
-    const stat = document.getElementById(`qrStat-${sid}`);
-    if (stat) { stat.textContent = '✅ QR scanné ! Message débloqué !'; stat.className = 'qr-status ok'; }
-    showFb(sid, '✅ QR Code scanné ! Le Lapin vous parle… 🐰', true);
-    stars(document.getElementById(`fb-${sid}`));
-    document.getElementById(`nxt-${sid}`)?.classList.remove('hidden');
-
-    // Joue l'URL du QR si c'est un lien, sinon fallback AUDIO[sid]
-    const url = (code.data.startsWith('http') ? code.data : null) || AUDIO[sid];
-    if (url) playUrl(url);
-
-  } else {
-    qrFrame = requestAnimationFrame(() => scanLoop(sid, vid));
-  }
-}
-
-function stopQR() {
-  if (qrFrame) { cancelAnimationFrame(qrFrame); qrFrame = null; }
-  if (qrStream) { qrStream.getTracks().forEach(t => t.stop()); qrStream = null; }
-  // Masque tous les viewports ouverts
-  document.querySelectorAll('.qr-viewport.active').forEach(v => v.classList.remove('active'));
 }
 
 // ══════════════════════════════════════════════
@@ -914,7 +791,6 @@ function unlockSlot(idx, val) {
 // NAVIGATION
 // ══════════════════════════════════════════════
 function goNext() {
-  stopQR();
   const s = STEPS.find(x => x.id === step);
   document.getElementById('celIco').textContent = s?.celIco || '🎉';
   document.getElementById('celTtl').textContent = s?.celTtl || 'Bravo !';
