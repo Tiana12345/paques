@@ -306,20 +306,20 @@ body { font-family:'Nunito',sans-serif; background:linear-gradient(160deg,#FFF0F
 // plus une tentative fetch→blob pour contourner.
 
 const AUDIO = {
-  1:  './audio/1.mp3',
-  2:  './audio/2.mp3',
-  3:  './audio/3.mp3',
-  4:  './audio/4.mp3',
-  5:  './audio/5.mp3',
-  6:  './audio/6.mp3',
-  7:  './audio/7.mp3',
-  8:  './audio/8.mp3',
-  9:  './audio/9.mp3',
-  10: './audio/10.mp3',
-  11: './audio/11.mp3',
-  12: './audio/12.mp3',
-  13: './audio/13.mp3',
-  14: './audio/14.mp3',
+  1:  null,
+  2:  './audio/1.mp3',
+  3:  './audio/2.mp3',
+  4:  './audio/3.mp3',
+  5:  './audio/4.mp3',
+  6:  './audio/5.mp3',
+  7:  './audio/6.mp3',
+  8:  './audio/7.mp3',
+  9:  './audio/8.mp3',
+  10: './audio/9.mp3',
+  11: './audio/10.mp3',
+  12: './audio/11.mp3',
+  13: './audio/12.mp3',
+  14: './audio/13.mp3',
 };
 
 // ══════════════════════════════════════════════
@@ -502,6 +502,7 @@ function buildFP(sid) {
 // AUDIO BTN HTML
 // ══════════════════════════════════════════════
 function audioBtn(sid) {
+  if (!AUDIO[sid]) return '';
   return `
     <button class="audio-btn" id="audBtn-${sid}" onclick="toggleAud(${sid})">
       <span class="a-ico">🎵</span>
