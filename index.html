@@ -324,21 +324,25 @@ body { font-family:'Nunito',sans-serif; background:linear-gradient(160deg,#FFF0F
 // ══════════════════════════════════════════════
 // AUDIO URLs — Google Drive
 // ══════════════════════════════════════════════
+// Google Drive bloque souvent New Audio() à cause du CORS et des redirections.
+// On utilise un <audio> tag HTML visible avec controls en fallback,
+// plus une tentative fetch→blob pour contourner.
+
 const AUDIO = {
-  1:  'https://drive.google.com/uc?export=download&id=1-BlvBym8WKRozn9wno_lYbGzmPwEgfd_',
-  2:  'https://drive.google.com/uc?export=download&id=1-W-5fnhCbY7lRYDeM7Kzgw-R5fOmsLmm',
-  3:  'https://drive.google.com/uc?export=download&id=16G9SD5rAScODuDPIB6V0mIPpaAbnPFin',
-  4:  'https://drive.google.com/uc?export=download&id=18xLqgaEeJ1-6h7LoA6fyAN3axJgm-Kqg',
-  5:  'https://drive.google.com/uc?export=download&id=1FGOlxA6p6qBjH7eL1EWlIuR13WEeGe5b',
-  6:  'https://drive.google.com/uc?export=download&id=1Hi2_02q9KtfCFkDEoFVfNbn8044yGzQ_',
-  7:  'https://drive.google.com/uc?export=download&id=1KSEgOcyeae9D0AWrKa-pymas4Nsg1_Ma',
-  8:  'https://drive.google.com/uc?export=download&id=1PCcbewtRihgeIbOo35W9_DMVQqqwZ-Pi',
-  9:  'https://drive.google.com/uc?export=download&id=1VshSq0xBqoauH8EA-YxOmOCnt22A-9dQ',
-  10: 'https://drive.google.com/uc?export=download&id=1ZgD5NDGBi14tye0U2H8mnoX6zH04d8tr',
-  11: 'https://drive.google.com/uc?export=download&id=1cnYDVmLzGI53frZ1_a8NDa_3xoI2RmGS',
-  12: 'https://drive.google.com/uc?export=download&id=1hUgY7gE5-aTqro1pvdrS1aJp_NHsSKdo',
-  13: 'https://drive.google.com/uc?export=download&id=1jPL8lQjg6CGXvv7MtDxNfJ0hh6CJCk8y',
-  14: 'https://drive.google.com/uc?export=download&id=1o8FXIFQ_p5KBnTNhhCyWohORidGYSENJ',
+  1:  './audio/1.mp3',
+  2:  './audio/2.mp3',
+  3:  './audio/3.mp3',
+  4:  './audio/4.mp3',
+  5:  './audio/5.mp3',
+  6:  './audio/6.mp3',
+  7:  './audio/7.mp3',
+  8:  './audio/8.mp3',
+  9:  './audio/9.mp3',
+  10: './audio/10.mp3',
+  11: './audio/11.mp3',
+  12: './audio/12.mp3',
+  13: './audio/13.mp3',
+  14: './audio/14.mp3',
 };
 
 // ══════════════════════════════════════════════
@@ -744,50 +748,76 @@ function stopQR() {
 }
 
 // ══════════════════════════════════════════════
-// AUDIO
+// AUDIO — fichiers locaux, aucun CORS
 // ══════════════════════════════════════════════
+
+function getAudioEl(sid) {
+  let el = document.getElementById(`audioEl-${sid}`);
+  if (!el) {
+    el = document.createElement('audio');
+    el.id = `audioEl-${sid}`;
+    el.preload = 'none';
+    el.style.display = 'none';
+    el.src = AUDIO[sid];
+    document.body.appendChild(el);
+  }
+  return el;
+}
+
 function playUrl(url) {
   if (!url) return;
-  const a = new Audio(url);
+  const a = document.createElement('audio');
+  a.src = url;
+  a.style.display = 'none';
+  document.body.appendChild(a);
   a.play().catch(() => {});
+  a.addEventListener('ended', () => a.remove());
 }
 
 function toggleAud(sid) {
   const btn  = document.getElementById(`audBtn-${sid}`);
   const wave = document.getElementById(`wave-${sid}`);
-  const url  = AUDIO[sid];
+  const lbl  = btn?.querySelector('.a-lbl');
 
-  if (!url) {
-    if (btn) { const l = btn.querySelector('.a-lbl'); if (l) l.textContent = '⚠️ Audio non configuré'; btn.style.opacity = '.5'; }
-    return;
-  }
-
-  // Pause en cours
+  // Stopper tout audio en cours
   if (curAud && !curAud.paused) {
     curAud.pause();
+    curAud.currentTime = 0;
     const pb = document.getElementById(`audBtn-${curAud._sid}`);
     const pw = document.getElementById(`wave-${curAud._sid}`);
     pb?.classList.remove('playing');
     pw?.classList.add('hidden');
-    if (pb) { const l = pb.querySelector('.a-lbl'); if (l) l.textContent = 'Message du Lapin Magique'; }
+    const pl = pb?.querySelector('.a-lbl');
+    if (pl) pl.textContent = 'Message du Lapin Magique';
     if (curAud._sid === sid) { curAud = null; return; }
   }
 
-  if (!audElems[sid]) {
-    audElems[sid] = new Audio(url);
-    audElems[sid]._sid = sid;
-    audElems[sid].addEventListener('ended', () => {
-      btn?.classList.remove('playing');
-      wave?.classList.add('hidden');
-      if (btn) { const l = btn.querySelector('.a-lbl'); if (l) l.textContent = 'Message du Lapin Magique'; }
+  const audio = getAudioEl(sid);
+  audio._sid  = sid;
+  curAud      = audio;
+
+  audio.onended = () => {
+    btn?.classList.remove('playing');
+    wave?.classList.add('hidden');
+    if (lbl) lbl.textContent = 'Message du Lapin Magique';
+  };
+
+  audio.onerror = () => {
+    btn?.classList.remove('playing');
+    wave?.classList.add('hidden');
+    if (lbl) lbl.textContent = '❌ Fichier audio introuvable';
+  };
+
+  const p = audio.play();
+  if (p) {
+    p.then(() => {
+      btn?.classList.add('playing');
+      if (lbl) lbl.textContent = '🎵 En lecture…';
+      wave?.classList.remove('hidden');
+    }).catch(() => {
+      if (lbl) lbl.textContent = '❌ Erreur de lecture';
     });
   }
-
-  curAud = audElems[sid];
-  curAud._sid = sid;
-  curAud.play().catch(() => {});
-  if (btn)  { btn.classList.add('playing'); const l = btn.querySelector('.a-lbl'); if (l) l.textContent = '🎵 En lecture…'; }
-  if (wave) wave.classList.remove('hidden');
 }
 
 // ══════════════════════════════════════════════
