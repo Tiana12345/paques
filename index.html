@@ -4,223 +4,281 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <title>🥚 La Chasse aux Œufs d'Or</title>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800;900&display=swap');
 
 :root {
-  --pink:#FF85A1; --pink-l:#FFD6E0; --pink-ll:#FFF0F5;
-  --yellow:#FFD93D; --yellow-l:#FFF3B0;
-  --mint:#6BCB77; --mint-l:#C8F5CC;
-  --sky:#4D96FF; --sky-l:#C5DCFF;
-  --lav:#C77DFF; --lav-l:#EDD5FF;
-  --peach:#FF9A3C; --peach-l:#FFE0BE;
-  --bg:#FFF5FB; --dark:#3D2645; --mid:#7A5490;
-  --shadow:0 8px 32px rgba(61,38,69,0.15);
-  --radius:26px; --radius-sm:16px;
+  --pink:    #FF85A1;  --pink-l:  #FFD6E0;  --pink-ll: #FFF0F5;
+  --yellow:  #FFD93D;  --yellow-l:#FFF3B0;
+  --mint:    #6BCB77;  --mint-l:  #C8F5CC;
+  --sky:     #4D96FF;  --sky-l:   #C5DCFF;
+  --lav:     #C77DFF;  --lav-l:   #EDD5FF;
+  --peach:   #FF9A3C;
+  --dark:    #3D2645;  --mid:     #7A5490;
+  --shadow:  0 8px 32px rgba(61,38,69,0.15);
+  --r:       26px;     --rs:      16px;
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:'Nunito',sans-serif;background:linear-gradient(160deg,#FFF0FB 0%,#FFF8E6 50%,#F0F8FF 100%);min-height:100vh;color:var(--dark);overflow-x:hidden}
+
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+body { font-family:'Nunito',sans-serif; background:linear-gradient(160deg,#FFF0FB,#FFF8E6,#F0F8FF); min-height:100vh; color:var(--dark); overflow-x:hidden; }
 
 /* ── FLOATERS ── */
-.bg-eggs{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-.bg-egg{position:absolute;animation:floatUp linear infinite}
-@keyframes floatUp{0%{transform:translateY(105vh) rotate(0deg) scale(.8);opacity:0}10%{opacity:.12}90%{opacity:.12}100%{transform:translateY(-10vh) rotate(360deg) scale(1.1);opacity:0}}
+.bg-eggs { position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
+.bg-egg  { position:absolute; animation:floatUp linear infinite; }
+@keyframes floatUp {
+  0%   { transform:translateY(105vh) rotate(0deg); opacity:0; }
+  10%  { opacity:.12; }
+  90%  { opacity:.12; }
+  100% { transform:translateY(-10vh) rotate(360deg); opacity:0; }
+}
 
 /* ── HEADER ── */
-.header{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,#FF6EA0 0%,#FFB347 55%,#FF6EA0 100%);background-size:200% 200%;animation:headerShimmer 4s ease infinite;padding:12px 18px 10px;box-shadow:0 5px 24px rgba(255,110,160,.45)}
-@keyframes headerShimmer{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.header {
+  position:sticky; top:0; z-index:100;
+  background:linear-gradient(135deg,#FF6EA0,#FFB347,#FF6EA0);
+  background-size:200% 200%;
+  animation:hShimmer 4s ease infinite;
+  padding:12px 18px 10px;
+  box-shadow:0 5px 24px rgba(255,110,160,.45);
+}
+@keyframes hShimmer { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
 
-/* ── BUNNY CSS ── */
-.bunny-wrap{display:flex;align-items:center;justify-content:center;gap:8px}
-.bunny{position:relative;width:38px;height:42px;flex-shrink:0;animation:bunnyHop 1.6s ease-in-out infinite}
-@keyframes bunnyHop{0%,100%{transform:translateY(0) scaleY(1)}40%{transform:translateY(-8px) scaleY(1.05)}55%{transform:translateY(-10px) scaleY(1.08)}70%{transform:translateY(-2px) scaleY(.95)}}
-.b-ear-l,.b-ear-r{position:absolute;bottom:28px;width:8px;height:18px;background:white;border-radius:50% 50% 30% 30%/55% 55% 45% 45%}
-.b-ear-l{left:50%;margin-left:-11px;transform:rotate(-12deg)}.b-ear-r{left:50%;margin-left:3px;transform:rotate(12deg)}
-.b-ear-inner-l,.b-ear-inner-r{position:absolute;bottom:31px;width:3.5px;height:11px;background:var(--pink);border-radius:50%;opacity:.75}
-.b-ear-inner-l{left:50%;margin-left:-9px;transform:rotate(-12deg)}.b-ear-inner-r{left:50%;margin-left:5px;transform:rotate(12deg)}
-.b-head{position:absolute;bottom:17px;left:50%;transform:translateX(-50%);width:20px;height:19px;background:white;border-radius:50%}
-.b-eye-l,.b-eye-r{position:absolute;bottom:23px;width:3.5px;height:3.5px;background:var(--dark);border-radius:50%}
-.b-eye-l{left:50%;margin-left:-7px}.b-eye-r{left:50%;margin-left:3px}
-.b-nose{position:absolute;bottom:20.5px;left:50%;transform:translateX(-50%);width:4px;height:3px;background:var(--pink);border-radius:50%}
-.b-body{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:24px;height:22px;background:white;border-radius:50% 50% 45% 45%/55% 55% 45% 45%}
-.b-tail{position:absolute;bottom:16px;left:50%;margin-left:8px;width:8px;height:8px;background:white;border-radius:50%}
-.header-title{font-family:'Fredoka One',cursive;font-size:1.2rem;color:white;text-shadow:0 2px 10px rgba(0,0,0,.2);letter-spacing:.5px;line-height:1.2}
-.header-sub{font-size:.68rem;color:rgba(255,255,255,.9);font-weight:800}
+/* ── LAPINS CSS ── */
+.bunny-wrap { display:flex; align-items:center; justify-content:center; gap:8px; }
+.bunny { position:relative; width:38px; height:42px; flex-shrink:0; animation:bHop 1.6s ease-in-out infinite; }
+@keyframes bHop { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+.b-ear-l,.b-ear-r { position:absolute; bottom:28px; width:8px; height:18px; background:#fff; border-radius:50% 50% 30% 30%/55% 55% 45% 45%; }
+.b-ear-l { left:50%; margin-left:-11px; transform:rotate(-12deg); }
+.b-ear-r { left:50%; margin-left:3px;   transform:rotate(12deg);  }
+.b-in-l,.b-in-r { position:absolute; bottom:31px; width:3.5px; height:11px; background:var(--pink); border-radius:50%; opacity:.75; }
+.b-in-l { left:50%; margin-left:-9px; transform:rotate(-12deg); }
+.b-in-r { left:50%; margin-left:5px;  transform:rotate(12deg);  }
+.b-head { position:absolute; bottom:17px; left:50%; transform:translateX(-50%); width:20px; height:19px; background:#fff; border-radius:50%; }
+.b-el,.b-er { position:absolute; bottom:23px; width:3.5px; height:3.5px; background:var(--dark); border-radius:50%; }
+.b-el { left:50%; margin-left:-7px; }
+.b-er { left:50%; margin-left:3px;  }
+.b-nose { position:absolute; bottom:20.5px; left:50%; transform:translateX(-50%); width:4px; height:3px; background:var(--pink); border-radius:50%; }
+.b-body { position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:24px; height:22px; background:#fff; border-radius:50% 50% 45% 45%/55% 55% 45% 45%; }
+.b-tail { position:absolute; bottom:16px; left:50%; margin-left:8px; width:8px; height:8px; background:#fff; border-radius:50%; }
+
+.header-title { font-family:'Fredoka One',cursive; font-size:1.2rem; color:#fff; text-shadow:0 2px 10px rgba(0,0,0,.2); letter-spacing:.5px; }
+.header-sub   { font-size:.68rem; color:rgba(255,255,255,.9); font-weight:800; }
 
 /* ── SLOTS ── */
-.code-slots{display:flex;justify-content:center;align-items:center;gap:16px;margin-top:10px}
-.slot-wrapper{display:flex;flex-direction:column;align-items:center;gap:3px}
-.slot{width:46px;height:46px;border-radius:50%;border:3px solid rgba(255,255,255,.45);background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:1.35rem;color:transparent;transition:all .5s cubic-bezier(.34,1.56,.64,1)}
-.slot.filled{background:white;color:var(--pink);border-color:white;box-shadow:0 0 0 4px rgba(255,255,255,.3),0 0 20px rgba(255,255,255,.6);animation:slotPop .65s cubic-bezier(.34,1.56,.64,1)}
-@keyframes slotPop{0%{transform:scale(.4) rotate(-15deg)}65%{transform:scale(1.3) rotate(6deg)}100%{transform:scale(1) rotate(0)}}
-.slot-label{font-size:.56rem;color:rgba(255,255,255,.85);font-weight:800;letter-spacing:1px}
+.code-slots  { display:flex; justify-content:center; align-items:center; gap:16px; margin-top:10px; }
+.slot-wrap   { display:flex; flex-direction:column; align-items:center; gap:3px; }
+.slot {
+  width:46px; height:46px; border-radius:50%;
+  border:3px solid rgba(255,255,255,.45);
+  background:rgba(255,255,255,.18);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Fredoka One',cursive; font-size:1.35rem; color:transparent;
+  transition:all .5s cubic-bezier(.34,1.56,.64,1);
+}
+.slot.filled {
+  background:#fff; color:var(--pink); border-color:#fff;
+  box-shadow:0 0 0 4px rgba(255,255,255,.3), 0 0 20px rgba(255,255,255,.6);
+  animation:slotPop .65s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes slotPop { 0%{transform:scale(.4) rotate(-15deg)} 65%{transform:scale(1.3) rotate(6deg)} 100%{transform:scale(1) rotate(0)} }
+.slot-lbl { font-size:.56rem; color:rgba(255,255,255,.85); font-weight:800; letter-spacing:1px; }
 
 /* ── PROGRESS ── */
-.progress-container{background:rgba(255,255,255,.22);border-radius:20px;height:10px;margin:10px 18px 0;overflow:hidden}
-.progress-bar{height:100%;border-radius:20px;background:linear-gradient(90deg,white,rgba(255,255,255,.7),white);background-size:200% 100%;animation:progressShine 1.5s linear infinite;transition:width .8s cubic-bezier(.34,1.56,.64,1);box-shadow:0 0 12px rgba(255,255,255,.7)}
-@keyframes progressShine{0%{background-position:200% 0}100%{background-position:-200% 0}}
-.progress-text{text-align:center;font-size:.64rem;color:rgba(255,255,255,.92);margin-top:4px;font-weight:800}
+.prog-wrap { background:rgba(255,255,255,.22); border-radius:20px; height:10px; margin:10px 18px 0; overflow:hidden; }
+.prog-bar  { height:100%; border-radius:20px; background:linear-gradient(90deg,#fff,rgba(255,255,255,.7),#fff); background-size:200% 100%; animation:pShine 1.5s linear infinite; transition:width .8s cubic-bezier(.34,1.56,.64,1); box-shadow:0 0 12px rgba(255,255,255,.7); }
+@keyframes pShine { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+.prog-txt  { text-align:center; font-size:.64rem; color:rgba(255,255,255,.92); margin-top:4px; font-weight:800; }
 
-/* ── MAIN / CARD ── */
-.main{padding:16px;padding-bottom:50px;position:relative;z-index:1}
-.step-card{background:white;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px;animation:cardIn .55s cubic-bezier(.34,1.56,.64,1);border:2.5px solid rgba(255,133,161,.15)}
-@keyframes cardIn{from{opacity:0;transform:translateY(40px) scale(.93)}to{opacity:1;transform:translateY(0) scale(1)}}
-.step-header{padding:18px 18px 16px;position:relative;overflow:hidden}
-.step-header::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);animation:headerSweep 3s ease-in-out infinite}
-@keyframes headerSweep{0%,100%{left:-100%}50%{left:120%}}
-.step-header::after{content:'';position:absolute;right:-28px;top:-28px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.15)}
-.step-num{font-family:'Fredoka One',cursive;font-size:.72rem;letter-spacing:2px;opacity:.9;text-transform:uppercase}
-.step-location{font-family:'Fredoka One',cursive;font-size:1.2rem;margin-top:3px;line-height:1.2}
-.step-emoji{font-size:2.4rem;position:absolute;right:18px;top:12px;filter:drop-shadow(0 3px 6px rgba(0,0,0,.15));animation:emojiWiggle 2.5s ease-in-out infinite}
-@keyframes emojiWiggle{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(-8deg) scale(1.1)}75%{transform:rotate(8deg) scale(1.1)}}
-.step-body{padding:16px 18px 20px}
-.step-mission{font-size:.93rem;line-height:1.68;color:var(--dark);margin-bottom:14px;font-weight:700}
-.step-riddle{background:linear-gradient(135deg,var(--yellow-l),var(--pink-ll));border-radius:var(--radius-sm);padding:13px 15px;border-left:5px solid var(--yellow);font-size:.88rem;line-height:1.6;color:var(--mid);margin-bottom:14px;font-weight:700;font-style:italic}
+/* ── CARD ── */
+.main { padding:16px; padding-bottom:52px; position:relative; z-index:1; }
+.step-card { background:#fff; border-radius:var(--r); box-shadow:var(--shadow); overflow:hidden; margin-bottom:16px; border:2.5px solid rgba(255,133,161,.15); animation:cardIn .55s cubic-bezier(.34,1.56,.64,1); }
+@keyframes cardIn { from{opacity:0;transform:translateY(40px) scale(.93)} to{opacity:1;transform:none} }
 
-/* ── COLORS ── */
-.color-1{background:linear-gradient(135deg,#FF85A1,#FFB3C6);color:white}
-.color-2{background:linear-gradient(135deg,#FF9A3C,#FFCF80);color:white}
-.color-3{background:linear-gradient(135deg,#6BCB77,#A8EDB0);color:white}
-.color-4{background:linear-gradient(135deg,#C77DFF,#E2BBFF);color:white}
-.color-5{background:linear-gradient(135deg,#4D96FF,#96C4FF);color:white}
-.color-6{background:linear-gradient(135deg,#FF85A1,#FFD93D);color:white}
-.color-7{background:linear-gradient(135deg,#FFD93D,#FFED8A);color:var(--dark)}
-.color-8{background:linear-gradient(135deg,#FF9A3C,#FFCB80);color:white}
-.color-9{background:linear-gradient(135deg,#4D96FF,#6BCB77);color:white}
-.color-10{background:linear-gradient(135deg,#FF6B6B,#FF9A9A);color:white}
-.color-11{background:linear-gradient(135deg,#C77DFF,#4D96FF);color:white}
-.color-12{background:linear-gradient(135deg,#FF85A1,#C77DFF);color:white}
-.color-13{background:linear-gradient(135deg,#6BCB77,#4D96FF);color:white}
-.color-14{background:linear-gradient(135deg,#FFD93D,#FF9A3C);color:white}
+.step-hdr { padding:18px 18px 16px; position:relative; overflow:hidden; }
+.step-hdr::before { content:''; position:absolute; top:0; left:-100%; width:60%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent); animation:sweep 3s ease-in-out infinite; }
+@keyframes sweep { 0%,100%{left:-100%} 50%{left:120%} }
+.step-hdr::after  { content:''; position:absolute; right:-28px; top:-28px; width:120px; height:120px; border-radius:50%; background:rgba(255,255,255,.15); }
+.step-n   { font-family:'Fredoka One',cursive; font-size:.72rem; letter-spacing:2px; opacity:.9; text-transform:uppercase; }
+.step-loc { font-family:'Fredoka One',cursive; font-size:1.2rem; margin-top:3px; line-height:1.2; }
+.step-ico { font-size:2.4rem; position:absolute; right:18px; top:12px; filter:drop-shadow(0 3px 6px rgba(0,0,0,.15)); animation:wiggle 2.5s ease-in-out infinite; }
+@keyframes wiggle { 0%,100%{transform:rotate(0) scale(1)} 25%{transform:rotate(-8deg) scale(1.1)} 75%{transform:rotate(8deg) scale(1.1)} }
+
+.step-body { padding:16px 18px 20px; }
+.step-txt  { font-size:.93rem; line-height:1.68; color:var(--dark); margin-bottom:14px; font-weight:700; }
+.step-rdl  { background:linear-gradient(135deg,var(--yellow-l),var(--pink-ll)); border-radius:var(--rs); padding:13px 15px; border-left:5px solid var(--yellow); font-size:.88rem; line-height:1.6; color:var(--mid); margin-bottom:14px; font-weight:700; font-style:italic; }
+
+/* ── STEP COLORS ── */
+.c1  { background:linear-gradient(135deg,#FF85A1,#FFB3C6); color:#fff; }
+.c2  { background:linear-gradient(135deg,#FF9A3C,#FFCF80); color:#fff; }
+.c3  { background:linear-gradient(135deg,#6BCB77,#A8EDB0); color:#fff; }
+.c4  { background:linear-gradient(135deg,#C77DFF,#E2BBFF); color:#fff; }
+.c5  { background:linear-gradient(135deg,#4D96FF,#96C4FF); color:#fff; }
+.c6  { background:linear-gradient(135deg,#FF85A1,#FFD93D); color:#fff; }
+.c7  { background:linear-gradient(135deg,#FFD93D,#FFED8A); color:var(--dark); }
+.c8  { background:linear-gradient(135deg,#FF9A3C,#FFCB80); color:#fff; }
+.c9  { background:linear-gradient(135deg,#4D96FF,#6BCB77); color:#fff; }
+.c10 { background:linear-gradient(135deg,#FF6B6B,#FF9A9A); color:#fff; }
+.c11 { background:linear-gradient(135deg,#C77DFF,#4D96FF); color:#fff; }
+.c12 { background:linear-gradient(135deg,#FF85A1,#C77DFF); color:#fff; }
+.c13 { background:linear-gradient(135deg,#6BCB77,#4D96FF); color:#fff; }
+.c14 { background:linear-gradient(135deg,#FFD93D,#FF9A3C); color:#fff; }
 
 /* ── FINGERPRINTS ── */
-.fp-section{background:linear-gradient(135deg,#FFF8FC,#F5F0FF);border:2.5px dashed rgba(199,125,255,.45);border-radius:var(--radius-sm);padding:13px 10px 11px;margin-bottom:14px}
-.fp-title{font-family:'Fredoka One',cursive;font-size:.84rem;color:var(--mid);text-align:center;margin-bottom:11px}
-.fp-grid{display:flex;justify-content:space-around}
-.fp-child{display:flex;flex-direction:column;align-items:center;gap:4px}
-.fp-btn{width:48px;height:48px;border-radius:50%;border:3px solid;font-size:1.5rem;background:white;cursor:pointer;transition:all .3s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:center;justify-content:center;position:relative;box-shadow:0 3px 10px rgba(0,0,0,.1)}
-.fp-btn:active{transform:scale(.88)}
-.fp-btn.stamped{transform:scale(1.2);box-shadow:0 5px 16px rgba(0,0,0,.2);animation:fpPop .4s cubic-bezier(.34,1.56,.64,1)}
-@keyframes fpPop{0%{transform:scale(.7)}60%{transform:scale(1.3)}100%{transform:scale(1.2)}}
-.fp-btn.stamped::after{content:'✓';position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,.22);display:flex;align-items:center;justify-content:center;color:white;font-size:1.15rem;font-weight:900}
-.fp-name{font-size:.6rem;font-weight:900;color:var(--dark);text-align:center}
-.fp-notice{font-size:.72rem;color:var(--lav);text-align:center;margin-top:8px;font-weight:800}
-.fp-notice.all-ok{color:var(--mint);animation:noticeGlow .4s ease}
-@keyframes noticeGlow{0%{transform:scale(.9)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
+.fp-box  { background:linear-gradient(135deg,#FFF8FC,#F5F0FF); border:2.5px dashed rgba(199,125,255,.45); border-radius:var(--rs); padding:13px 10px 11px; margin-bottom:14px; transition:border-color .3s, background .3s; }
+.fp-ttl  { font-family:'Fredoka One',cursive; font-size:.84rem; color:var(--mid); text-align:center; margin-bottom:11px; }
+.fp-grid { display:flex; justify-content:space-around; }
+.fp-kid  { display:flex; flex-direction:column; align-items:center; gap:4px; }
+.fp-btn  { width:48px; height:48px; border-radius:50%; border:3px solid; font-size:1.5rem; background:#fff; cursor:pointer; transition:all .3s cubic-bezier(.34,1.56,.64,1); display:flex; align-items:center; justify-content:center; position:relative; box-shadow:0 3px 10px rgba(0,0,0,.1); }
+.fp-btn:active { transform:scale(.88); }
+.fp-btn.ok { transform:scale(1.2); box-shadow:0 5px 16px rgba(0,0,0,.2); animation:fpPop .4s cubic-bezier(.34,1.56,.64,1); }
+.fp-btn.ok::after { content:'✓'; position:absolute; inset:0; border-radius:50%; background:rgba(0,0,0,.22); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.15rem; font-weight:900; }
+@keyframes fpPop { 0%{transform:scale(.7)} 60%{transform:scale(1.3)} 100%{transform:scale(1.2)} }
+.fp-name  { font-size:.6rem; font-weight:900; color:var(--dark); text-align:center; }
+.fp-note  { font-size:.72rem; color:var(--lav); text-align:center; margin-top:8px; font-weight:800; }
+.fp-note.done { color:var(--mint); }
 
-/* ── AUDIO BUTTON ── */
-.audio-btn{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--lav),#A855F7);color:white;border:none;border-radius:50px;padding:14px 20px;font-size:.92rem;font-weight:800;cursor:pointer;width:100%;margin-bottom:14px;box-shadow:0 4px 20px rgba(199,125,255,.45);transition:all .2s;font-family:'Nunito',sans-serif;position:relative;overflow:hidden}
-.audio-btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);transition:left .5s}
-.audio-btn:hover::before{left:100%}
-.audio-btn:active{transform:scale(.97)}
-.audio-btn.playing{background:linear-gradient(135deg,var(--mint),#22C55E)}
-.audio-icon{font-size:1.4rem;animation:iconPulse 2s ease-in-out infinite}
-@keyframes iconPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
-.audio-label{flex:1;text-align:left}
-.audio-wave{display:flex;gap:2px;align-items:center}
-.wave-bar{width:3px;background:rgba(255,255,255,.85);border-radius:2px;animation:wave .8s ease-in-out infinite}
-.wave-bar:nth-child(1){height:8px;animation-delay:0s}.wave-bar:nth-child(2){height:14px;animation-delay:.15s}.wave-bar:nth-child(3){height:10px;animation-delay:.3s}.wave-bar:nth-child(4){height:16px;animation-delay:.1s}.wave-bar:nth-child(5){height:8px;animation-delay:.25s}
-@keyframes wave{0%,100%{transform:scaleY(.5)}50%{transform:scaleY(1)}}
+/* ── AUDIO BTN ── */
+.audio-btn { display:flex; align-items:center; gap:10px; background:linear-gradient(135deg,var(--lav),#A855F7); color:#fff; border:none; border-radius:50px; padding:14px 20px; font-size:.92rem; font-weight:800; cursor:pointer; width:100%; margin-bottom:14px; box-shadow:0 4px 20px rgba(199,125,255,.45); transition:all .2s; font-family:'Nunito',sans-serif; position:relative; overflow:hidden; }
+.audio-btn::before { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent); transition:left .5s; }
+.audio-btn:hover::before { left:100%; }
+.audio-btn:active { transform:scale(.97); }
+.audio-btn.playing { background:linear-gradient(135deg,var(--mint),#22C55E); }
+.a-ico { font-size:1.4rem; animation:aPulse 2s ease-in-out infinite; }
+@keyframes aPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+.a-lbl { flex:1; text-align:left; }
+.a-wave { display:flex; gap:2px; align-items:center; }
+.wbar   { width:3px; background:rgba(255,255,255,.85); border-radius:2px; animation:wv .8s ease-in-out infinite; }
+.wbar:nth-child(1){height:8px;animation-delay:0s}
+.wbar:nth-child(2){height:14px;animation-delay:.15s}
+.wbar:nth-child(3){height:10px;animation-delay:.3s}
+.wbar:nth-child(4){height:16px;animation-delay:.1s}
+.wbar:nth-child(5){height:8px;animation-delay:.25s}
+@keyframes wv { 0%,100%{transform:scaleY(.5)} 50%{transform:scaleY(1)} }
+
+/* ── QR SCANNER ── */
+.qr-wrap   { margin-bottom:14px; }
+.qr-open-btn {
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  width:100%; padding:16px;
+  background:linear-gradient(135deg,var(--sky),#2563EB);
+  border:none; border-radius:50px; color:#fff;
+  font-size:1rem; font-weight:800; font-family:'Nunito',sans-serif;
+  cursor:pointer; box-shadow:0 5px 20px rgba(77,150,255,.45); transition:all .2s;
+}
+.qr-open-btn:active { transform:scale(.97); }
+.qr-viewport { margin-top:12px; border-radius:var(--rs); overflow:hidden; display:none; position:relative; border:3px solid var(--yellow); background:#000; }
+.qr-viewport.active { display:block; }
+.qr-viewport video { width:100%; display:block; max-height:280px; object-fit:cover; }
+.qr-viewport .overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; }
+.qr-frame { width:60%; aspect-ratio:1; border:3px solid var(--yellow); border-radius:14px; box-shadow:0 0 0 1000px rgba(0,0,0,.45); animation:qrPulse 2s ease-in-out infinite; }
+@keyframes qrPulse {
+  0%,100% { box-shadow:0 0 0 1000px rgba(0,0,0,.45), 0 0 10px rgba(255,217,61,.4); }
+  50%      { box-shadow:0 0 0 1000px rgba(0,0,0,.45), 0 0 32px rgba(255,217,61,1);  }
+}
+.qr-status { text-align:center; font-size:.82rem; font-weight:800; color:var(--mid); margin-top:8px; min-height:1.4em; }
+.qr-status.ok  { color:var(--mint); }
+.qr-status.err { color:#E05A5A; }
 
 /* ── NUMBER ── */
-.number-input{display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:14px}
-.num-btn{width:54px;height:54px;border-radius:50%;border:3px solid var(--lav-l);background:white;font-size:1.7rem;cursor:pointer;font-weight:900;color:var(--lav);transition:all .2s;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(199,125,255,.25)}
-.num-btn:active{transform:scale(.86);background:var(--lav-l)}
-.num-display{font-family:'Fredoka One',cursive;font-size:3.2rem;color:var(--dark);min-width:68px;text-align:center}
+.num-row { display:flex; align-items:center; justify-content:center; gap:20px; margin-bottom:14px; }
+.num-btn { width:54px; height:54px; border-radius:50%; border:3px solid var(--lav-l); background:#fff; font-size:1.7rem; cursor:pointer; font-weight:900; color:var(--lav); transition:all .2s; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(199,125,255,.25); }
+.num-btn:active { transform:scale(.86); background:var(--lav-l); }
+.num-disp { font-family:'Fredoka One',cursive; font-size:3.2rem; color:var(--dark); min-width:68px; text-align:center; }
 
 /* ── TEXT INPUT ── */
-.answer-input{width:100%;padding:15px 16px;border:3px solid var(--lav-l);border-radius:var(--radius-sm);font-size:1.2rem;font-family:'Fredoka One',cursive;background:#FAFAFF;color:var(--dark);text-transform:uppercase;letter-spacing:3px;text-align:center;outline:none;transition:all .3s;margin-bottom:12px}
-.answer-input:focus{border-color:var(--lav);box-shadow:0 0 0 5px rgba(199,125,255,.18);background:white}
-.answer-input.correct{border-color:var(--mint);background:#F0FFF4;animation:inputPop .4s}
-.answer-input.wrong{border-color:#FF6B6B;background:#FFF5F5;animation:shake .4s}
-@keyframes inputPop{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-9px)}75%{transform:translateX(9px)}}
+.ans-input { width:100%; padding:15px 16px; border:3px solid var(--lav-l); border-radius:var(--rs); font-size:1.2rem; font-family:'Fredoka One',cursive; background:#FAFAFF; color:var(--dark); text-transform:uppercase; letter-spacing:3px; text-align:center; outline:none; transition:all .3s; margin-bottom:12px; }
+.ans-input:focus  { border-color:var(--lav); box-shadow:0 0 0 5px rgba(199,125,255,.18); background:#fff; }
+.ans-input.good   { border-color:var(--mint); background:#F0FFF4; animation:iPop .4s; }
+.ans-input.bad    { border-color:#FF6B6B; background:#FFF5F5; animation:iShake .4s; }
+@keyframes iPop   { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
+@keyframes iShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-9px)} 75%{transform:translateX(9px)} }
 
 /* ── BUTTONS ── */
-.validate-btn{width:100%;padding:17px;background:linear-gradient(135deg,var(--pink),#FF4D7D);border:none;border-radius:50px;font-size:1.05rem;font-weight:900;font-family:'Nunito',sans-serif;color:white;cursor:pointer;box-shadow:0 5px 20px rgba(255,133,161,.5);transition:all .2s;letter-spacing:.5px}
-.validate-btn:active{transform:scale(.96)}
-.validate-btn.action-btn{background:linear-gradient(135deg,var(--mint),#22C55E);box-shadow:0 5px 20px rgba(107,203,119,.45)}
-.continue-btn{width:100%;padding:17px;margin-top:10px;background:linear-gradient(135deg,var(--mint),#22C55E);border:none;border-radius:50px;font-size:1.05rem;font-weight:900;font-family:'Nunito',sans-serif;color:white;cursor:pointer;box-shadow:0 5px 20px rgba(107,203,119,.45);transition:all .2s;animation:btnPulse 2s ease-in-out infinite}
-@keyframes btnPulse{0%,100%{box-shadow:0 5px 20px rgba(107,203,119,.45)}50%{box-shadow:0 5px 35px rgba(107,203,119,.8)}}
-.continue-btn:active{transform:scale(.96)}
+.val-btn { width:100%; padding:17px; background:linear-gradient(135deg,var(--pink),#FF4D7D); border:none; border-radius:50px; font-size:1.05rem; font-weight:900; font-family:'Nunito',sans-serif; color:#fff; cursor:pointer; box-shadow:0 5px 20px rgba(255,133,161,.5); transition:all .2s; }
+.val-btn:active { transform:scale(.96); }
+.val-btn.green  { background:linear-gradient(135deg,var(--mint),#22C55E); box-shadow:0 5px 20px rgba(107,203,119,.45); }
+.nxt-btn { width:100%; padding:17px; margin-top:10px; background:linear-gradient(135deg,var(--mint),#22C55E); border:none; border-radius:50px; font-size:1.05rem; font-weight:900; font-family:'Nunito',sans-serif; color:#fff; cursor:pointer; animation:btnGlow 2s ease-in-out infinite; transition:all .2s; }
+.nxt-btn:active { transform:scale(.96); }
+@keyframes btnGlow { 0%,100%{box-shadow:0 5px 20px rgba(107,203,119,.45)} 50%{box-shadow:0 5px 35px rgba(107,203,119,.8)} }
 
 /* ── FEEDBACK ── */
-.feedback{text-align:center;padding:12px 14px;border-radius:var(--radius-sm);font-size:.92rem;font-weight:800;margin-top:10px;display:none}
-.feedback.success{background:var(--mint-l);color:#166534;display:block;animation:feedbackIn .35s cubic-bezier(.34,1.56,.64,1)}
-.feedback.error{background:#FFE4E4;color:#C03030;display:block;animation:feedbackIn .35s ease}
-@keyframes feedbackIn{from{opacity:0;transform:translateY(8px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+.fb { text-align:center; padding:12px 14px; border-radius:var(--rs); font-size:.92rem; font-weight:800; margin-top:10px; display:none; }
+.fb.ok  { background:var(--mint-l); color:#166534; display:block; animation:fbIn .35s cubic-bezier(.34,1.56,.64,1); }
+.fb.err { background:#FFE4E4;       color:#C03030; display:block; animation:fbIn .35s ease; }
+@keyframes fbIn { from{opacity:0;transform:translateY(8px) scale(.95)} to{opacity:1;transform:none} }
 
-/* ── CHIFFRE REVEAL ── */
-.chiffre-reveal{background:linear-gradient(135deg,var(--pink),var(--lav));border-radius:var(--radius-sm);padding:18px;text-align:center;margin-top:12px;display:none}
-.chiffre-reveal.show{display:block;animation:revealPop .65s cubic-bezier(.34,1.56,.64,1)}
-@keyframes revealPop{from{opacity:0;transform:scale(.5) rotate(-10deg)}70%{transform:scale(1.1) rotate(3deg)}to{opacity:1;transform:scale(1) rotate(0)}}
-.chiffre-label{font-size:.72rem;color:rgba(255,255,255,.95);letter-spacing:2px;text-transform:uppercase;font-weight:800}
-.chiffre-big{font-family:'Fredoka One',cursive;font-size:4.5rem;color:white;line-height:1;animation:numberGlow 1.5s ease-in-out infinite}
-@keyframes numberGlow{0%,100%{text-shadow:0 0 20px rgba(255,255,255,.6)}50%{text-shadow:0 0 50px rgba(255,255,255,1),0 0 80px rgba(255,255,255,.6)}}
-.chiffre-note{font-size:.8rem;color:rgba(255,255,255,.9);margin-top:5px;font-weight:700}
+/* ── SECRET REVEAL ── */
+.secret { background:linear-gradient(135deg,var(--pink),var(--lav)); border-radius:var(--rs); padding:18px; text-align:center; margin-top:12px; display:none; }
+.secret.show { display:block; animation:secPop .65s cubic-bezier(.34,1.56,.64,1); }
+@keyframes secPop { from{opacity:0;transform:scale(.5) rotate(-10deg)} 70%{transform:scale(1.1) rotate(3deg)} to{opacity:1;transform:none} }
+.sec-lbl  { font-size:.72rem; color:rgba(255,255,255,.95); letter-spacing:2px; text-transform:uppercase; font-weight:800; }
+.sec-num  { font-family:'Fredoka One',cursive; font-size:4.5rem; color:#fff; line-height:1; animation:numGlow 1.5s ease-in-out infinite; }
+@keyframes numGlow { 0%,100%{text-shadow:0 0 20px rgba(255,255,255,.6)} 50%{text-shadow:0 0 50px #fff, 0 0 80px rgba(255,255,255,.6)} }
+.sec-note { font-size:.8rem; color:rgba(255,255,255,.9); margin-top:5px; font-weight:700; }
 
 /* ── MIRROR ── */
-.mirror-word{background:linear-gradient(135deg,#1A1A2E,#2D1B69);border-radius:var(--radius-sm);padding:24px;text-align:center;margin-bottom:14px;border:3px solid var(--lav);animation:mirrorPulse 3s ease-in-out infinite}
-@keyframes mirrorPulse{0%,100%{box-shadow:0 0 20px rgba(199,125,255,.3)}50%{box-shadow:0 0 40px rgba(199,125,255,.7)}}
-.mirror-word-text{font-family:'Fredoka One',cursive;font-size:3rem;color:var(--lav);letter-spacing:8px;text-shadow:0 0 25px rgba(199,125,255,.8);display:inline-block;transform:scaleX(-1)}
-.mirror-label{font-size:.72rem;color:rgba(255,255,255,.55);margin-top:8px;letter-spacing:2px}
+.mirror-box  { background:linear-gradient(135deg,#1A1A2E,#2D1B69); border-radius:var(--rs); padding:24px; text-align:center; margin-bottom:14px; border:3px solid var(--lav); animation:mirPulse 3s ease-in-out infinite; }
+@keyframes mirPulse { 0%,100%{box-shadow:0 0 20px rgba(199,125,255,.3)} 50%{box-shadow:0 0 40px rgba(199,125,255,.7)} }
+.mirror-txt { font-family:'Fredoka One',cursive; font-size:3rem; color:var(--lav); letter-spacing:8px; text-shadow:0 0 25px rgba(199,125,255,.8); display:inline-block; transform:scaleX(-1); }
+.mirror-lbl { font-size:.72rem; color:rgba(255,255,255,.55); margin-top:8px; letter-spacing:2px; }
 
 /* ── NUMPAD ── */
-.numpad-wrap{background:linear-gradient(135deg,#2D1B69,#4C1D95);border-radius:var(--radius);padding:20px;margin-bottom:14px}
-.numpad-display{background:rgba(0,0,0,.3);border-radius:var(--radius-sm);padding:14px;text-align:center;margin-bottom:16px;border:2px solid rgba(255,255,255,.2)}
-.numpad-circles{display:flex;justify-content:center;gap:16px}
-.numpad-circle{width:40px;height:40px;border-radius:50%;border:2.5px solid rgba(255,255,255,.4);background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:1.35rem;color:rgba(255,255,255,.5);transition:all .35s cubic-bezier(.34,1.56,.64,1)}
-.numpad-circle.active{background:var(--yellow);color:var(--dark);border-color:var(--yellow);box-shadow:0 0 20px rgba(255,217,61,.6);transform:scale(1.15)}
-.numpad-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.numpad-key{padding:18px;border:1.5px solid rgba(255,255,255,.15);border-radius:var(--radius-sm);background:rgba(255,255,255,.12);color:rgba(255,255,255,.9);font-family:'Fredoka One',cursive;font-size:1.5rem;cursor:pointer;transition:all .2s}
-.numpad-key:active{transform:scale(.88);background:rgba(255,255,255,.28)}
-.numpad-key.del{font-size:1rem;font-family:'Nunito',sans-serif;font-weight:900}
-.numpad-key.ok{background:var(--yellow);color:var(--dark);font-family:'Fredoka One',cursive;font-size:1rem;box-shadow:0 4px 18px rgba(255,217,61,.55)}
-.hidden{display:none !important}
+.npad       { background:linear-gradient(135deg,#2D1B69,#4C1D95); border-radius:var(--r); padding:20px; margin-bottom:14px; }
+.npad-disp  { background:rgba(0,0,0,.3); border-radius:var(--rs); padding:14px; text-align:center; margin-bottom:16px; border:2px solid rgba(255,255,255,.2); }
+.npad-dots  { display:flex; justify-content:center; gap:16px; }
+.npad-dot   { width:40px; height:40px; border-radius:50%; border:2.5px solid rgba(255,255,255,.4); background:rgba(255,255,255,.1); display:flex; align-items:center; justify-content:center; font-family:'Fredoka One',cursive; font-size:1.35rem; color:rgba(255,255,255,.5); transition:all .35s cubic-bezier(.34,1.56,.64,1); }
+.npad-dot.on { background:var(--yellow); color:var(--dark); border-color:var(--yellow); box-shadow:0 0 20px rgba(255,217,61,.6); transform:scale(1.15); }
+.npad-grid  { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.npad-key   { padding:18px; border:1.5px solid rgba(255,255,255,.15); border-radius:var(--rs); background:rgba(255,255,255,.12); color:rgba(255,255,255,.9); font-family:'Fredoka One',cursive; font-size:1.5rem; cursor:pointer; transition:all .2s; }
+.npad-key:active { transform:scale(.88); background:rgba(255,255,255,.28); }
+.npad-del { font-size:1rem; font-family:'Nunito',sans-serif; font-weight:900; }
+.npad-ok  { background:var(--yellow); color:var(--dark); font-family:'Fredoka One',cursive; font-size:1rem; box-shadow:0 4px 18px rgba(255,217,61,.55); }
+
+.hidden { display:none !important; }
 
 /* ── CELEBRATION ── */
-.celebration{position:fixed;inset:0;z-index:1000;display:none;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,rgba(255,107,140,.97),rgba(199,125,255,.97));padding:30px;text-align:center}
-.celebration.show{display:flex;animation:celebIn .45s ease}
-@keyframes celebIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
-.celeb-emoji{font-size:6rem;animation:celebBounce 1s ease-in-out infinite}
-@keyframes celebBounce{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-18px) scale(1.12)}}
-.celeb-title{font-family:'Fredoka One',cursive;font-size:2.2rem;color:white;text-shadow:0 0 30px rgba(255,255,255,.5);margin:16px 0 8px}
-.celeb-msg{color:rgba(255,255,255,.95);font-size:1rem;font-weight:700;padding:0 10px;line-height:1.5}
-.celeb-next{margin-top:28px;padding:18px 48px;background:white;border:none;border-radius:50px;font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--pink);cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,.18);transition:all .2s;animation:btnPulse 2s ease-in-out infinite}
-.celeb-next:active{transform:scale(.97)}
+.celebration { position:fixed; inset:0; z-index:1000; display:none; flex-direction:column; align-items:center; justify-content:center; background:linear-gradient(160deg,rgba(255,107,140,.97),rgba(199,125,255,.97)); padding:30px; text-align:center; }
+.celebration.show { display:flex; animation:cIn .45s ease; }
+@keyframes cIn { from{opacity:0;transform:scale(.92)} to{opacity:1;transform:none} }
+.cel-ico  { font-size:6rem; animation:cBounce 1s ease-in-out infinite; }
+@keyframes cBounce { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-18px) scale(1.12)} }
+.cel-ttl  { font-family:'Fredoka One',cursive; font-size:2.2rem; color:#fff; text-shadow:0 0 30px rgba(255,255,255,.5); margin:16px 0 8px; }
+.cel-msg  { color:rgba(255,255,255,.95); font-size:1rem; font-weight:700; padding:0 10px; line-height:1.5; }
+.cel-nxt  { margin-top:28px; padding:18px 48px; background:#fff; border:none; border-radius:50px; font-family:'Fredoka One',cursive; font-size:1.1rem; color:var(--pink); cursor:pointer; box-shadow:0 6px 24px rgba(0,0,0,.18); animation:btnGlow 2s ease-in-out infinite; }
 
 /* CONFETTI */
-.confetti-piece{position:fixed;top:-10px;border-radius:4px;animation:confettiFall linear forwards;pointer-events:none;z-index:1001}
-@keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+.conf { position:fixed; top:-10px; border-radius:4px; animation:cFall linear forwards; pointer-events:none; z-index:1001; }
+@keyframes cFall { 0%{transform:translateY(0) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
 
-/* STAR BURST */
-.star{position:fixed;pointer-events:none;z-index:1002;animation:starBurst .7s ease-out forwards}
-@keyframes starBurst{0%{opacity:1;transform:translate(-50%,-50%) scale(.3)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.8) translateY(-55px)}}
+/* STAR */
+.star { position:fixed; pointer-events:none; z-index:1002; animation:sBurst .7s ease-out forwards; }
+@keyframes sBurst { 0%{opacity:1;transform:translate(-50%,-50%) scale(.3)} 100%{opacity:0;transform:translate(-50%,-50%) scale(1.8) translateY(-55px)} }
 
 /* ── FINAL ── */
-.final-screen{position:fixed;inset:0;z-index:2000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center;background:linear-gradient(160deg,#FF6EA0 0%,#FFD93D 40%,#6BCB77 80%,#4D96FF 100%);background-size:300% 300%}
-.final-screen.show{display:flex;animation:finalGradient 5s ease infinite,celebIn .5s ease}
-@keyframes finalGradient{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-.final-trophy{font-size:7rem;animation:trophySpin 2.5s ease-in-out infinite}
-@keyframes trophySpin{0%,100%{transform:rotate(-8deg) scale(1)}50%{transform:rotate(8deg) scale(1.12)}}
-.final-title{font-family:'Fredoka One',cursive;font-size:2.3rem;color:white;text-shadow:0 4px 20px rgba(0,0,0,.2);margin:18px 0 10px;line-height:1.2}
-.final-msg{color:rgba(255,255,255,.96);font-size:1rem;font-weight:700;line-height:1.8}
-.final-mamie{font-family:'Fredoka One',cursive;font-size:2rem;color:white;margin-top:16px;text-shadow:0 3px 12px rgba(0,0,0,.2);animation:mamieGlow 1.5s ease-in-out infinite}
-@keyframes mamieGlow{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
-.final-sub{font-size:.88rem;color:rgba(255,255,255,.88);font-weight:700;margin-top:10px;line-height:1.6}
+.final { position:fixed; inset:0; z-index:2000; display:none; flex-direction:column; align-items:center; justify-content:center; padding:30px; text-align:center; background:linear-gradient(160deg,#FF6EA0,#FFD93D,#6BCB77,#4D96FF); background-size:300% 300%; }
+.final.show { display:flex; animation:fGrad 5s ease infinite, cIn .5s ease; }
+@keyframes fGrad { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+.f-trophy { font-size:7rem; animation:fSpin 2.5s ease-in-out infinite; }
+@keyframes fSpin { 0%,100%{transform:rotate(-8deg) scale(1)} 50%{transform:rotate(8deg) scale(1.12)} }
+.f-title  { font-family:'Fredoka One',cursive; font-size:2.3rem; color:#fff; text-shadow:0 4px 20px rgba(0,0,0,.2); margin:18px 0 10px; line-height:1.2; }
+.f-msg    { color:rgba(255,255,255,.96); font-size:1rem; font-weight:700; line-height:1.8; }
+.f-mamie  { font-family:'Fredoka One',cursive; font-size:2rem; color:#fff; margin-top:16px; animation:mGlow 1.5s ease-in-out infinite; }
+@keyframes mGlow { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+.f-sub    { font-size:.88rem; color:rgba(255,255,255,.88); font-weight:700; margin-top:10px; line-height:1.6; }
 </style>
 </head>
 <body>
 
 <div class="bg-eggs" id="bgEggs"></div>
 
-<!-- HEADER -->
+<!-- ══════════ HEADER ══════════ -->
 <div class="header">
   <div class="bunny-wrap">
     <div class="bunny">
       <div class="b-ear-l"></div><div class="b-ear-r"></div>
-      <div class="b-ear-inner-l"></div><div class="b-ear-inner-r"></div>
-      <div class="b-head"><div class="b-eye-l"></div><div class="b-eye-r"></div><div class="b-nose"></div></div>
+      <div class="b-in-l"></div><div class="b-in-r"></div>
+      <div class="b-head"><div class="b-el"></div><div class="b-er"></div><div class="b-nose"></div></div>
       <div class="b-body"></div><div class="b-tail"></div>
     </div>
     <div style="text-align:center">
@@ -229,47 +287,44 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(160deg,#FFF0FB 0
     </div>
     <div class="bunny" style="transform:scaleX(-1)">
       <div class="b-ear-l"></div><div class="b-ear-r"></div>
-      <div class="b-ear-inner-l"></div><div class="b-ear-inner-r"></div>
-      <div class="b-head"><div class="b-eye-l"></div><div class="b-eye-r"></div><div class="b-nose"></div></div>
+      <div class="b-in-l"></div><div class="b-in-r"></div>
+      <div class="b-head"><div class="b-el"></div><div class="b-er"></div><div class="b-nose"></div></div>
       <div class="b-body"></div><div class="b-tail"></div>
     </div>
   </div>
   <div class="code-slots">
-    <div class="slot-wrapper"><div class="slot" id="slot-0">7</div><div class="slot-label">1er 🔑</div></div>
-    <div class="slot-wrapper"><div class="slot" id="slot-1">6</div><div class="slot-label">2ème 🔑</div></div>
-    <div class="slot-wrapper"><div class="slot" id="slot-2">2</div><div class="slot-label">3ème 🔑</div></div>
+    <div class="slot-wrap"><div class="slot" id="slot-0">7</div><div class="slot-lbl">1er 🔑</div></div>
+    <div class="slot-wrap"><div class="slot" id="slot-1">6</div><div class="slot-lbl">2ème 🔑</div></div>
+    <div class="slot-wrap"><div class="slot" id="slot-2">2</div><div class="slot-lbl">3ème 🔑</div></div>
   </div>
-  <div class="progress-container"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
-  <div class="progress-text" id="progressText">Étape 1 / 14</div>
+  <div class="prog-wrap"><div class="prog-bar" id="progBar" style="width:0%"></div></div>
+  <div class="prog-txt" id="progTxt">Étape 1 / 14</div>
 </div>
 
 <div class="main" id="main"></div>
 
 <!-- CELEBRATION -->
 <div class="celebration" id="celebration">
-  <div class="celeb-emoji" id="celebEmoji">🎉</div>
-  <div class="celeb-title" id="celebTitle">Bravo !</div>
-  <div class="celeb-msg" id="celebMsg">Vous avez réussi !</div>
-  <button class="celeb-next" id="celebNext">Étape suivante →</button>
+  <div class="cel-ico" id="celIco">🎉</div>
+  <div class="cel-ttl" id="celTtl">Bravo !</div>
+  <div class="cel-msg" id="celMsg">Vous avez réussi !</div>
+  <button class="cel-nxt" id="celNxt">Étape suivante →</button>
 </div>
 
-<!-- FINAL -->
-<div class="final-screen" id="finalScreen">
-  <div class="final-trophy">🏆</div>
-  <div class="final-title">🎉 FÉLICITATIONS ! 🎉</div>
-  <div class="final-msg">Vous avez trouvé tous les œufs d'or !<br>Vous êtes des champions extraordinaires ! 🥚✨🐰</div>
-  <div class="final-mamie">👵 Courez voir Mamie ! 👵</div>
-  <div class="final-sub">Elle vous attend avec le plus beau cadeau de Pâques ! 🎁</div>
+<!-- FINAL — Mamie est là en vrai -->
+<div class="final" id="finalScreen">
+  <div class="f-trophy">🏆</div>
+  <div class="f-title">🎉 FÉLICITATIONS ! 🎉</div>
+  <div class="f-msg">Vous avez trouvé tous les œufs d'or !<br>Vous êtes des champions extraordinaires ! 🥚✨🐰</div>
+  <div class="f-mamie">👵 Courez voir Mamie ! 👵</div>
+  <div class="f-sub">Elle vous attend avec le plus beau cadeau de Pâques ! 🎁</div>
 </div>
-
-
 
 <script>
-// (QR retiré — audio via bouton direct)
-// ═══════════════════════════════════════════
-// AUDIO URLS — Google Drive
-// ═══════════════════════════════════════════
-const AUDIO_URLS = {
+// ══════════════════════════════════════════════
+// AUDIO URLs — Google Drive
+// ══════════════════════════════════════════════
+const AUDIO = {
   1:  'https://drive.google.com/uc?export=download&id=1-BlvBym8WKRozn9wno_lYbGzmPwEgfd_',
   2:  'https://drive.google.com/uc?export=download&id=1-W-5fnhCbY7lRYDeM7Kzgw-R5fOmsLmm',
   3:  'https://drive.google.com/uc?export=download&id=16G9SD5rAScODuDPIB6V0mIPpaAbnPFin',
@@ -286,563 +341,582 @@ const AUDIO_URLS = {
   14: 'https://drive.google.com/uc?export=download&id=1o8FXIFQ_p5KBnTNhhCyWohORidGYSENJ',
 };
 
-// ═══════════════════════════════════════════
+// ══════════════════════════════════════════════
 // ENFANTS
-// ═══════════════════════════════════════════
-const CHILDREN = [
-  {name:'Shonna',  emoji:'🦋',color:'#FF6B9D',border:'#FFB3CC'},
-  {name:'Ayhïana',emoji:'🌙',color:'#9B59B6',border:'#D7A8F0'},
-  {name:'Lya',    emoji:'⭐',color:'#F39C12',border:'#FFD580'},
-  {name:'Nahia',  emoji:'🌸',color:'#27AE60',border:'#82E0AA'},
-  {name:'Thyam',  emoji:'🚀',color:'#2980B9',border:'#85C1E9'},
+// ══════════════════════════════════════════════
+const KIDS = [
+  { name:'Shonna',   emoji:'🦋', color:'#FF6B9D', border:'#FFB3CC' },
+  { name:'Ayhïana', emoji:'🌙', color:'#9B59B6', border:'#D7A8F0' },
+  { name:'Lya',     emoji:'⭐', color:'#F39C12', border:'#FFD580' },
+  { name:'Nahia',   emoji:'🌸', color:'#27AE60', border:'#82E0AA' },
+  { name:'Thyam',   emoji:'🚀', color:'#2980B9', border:'#85C1E9' },
 ];
 
-// ═══════════════════════════════════════════
-// STEPS — identiques à joueur.html
-// ═══════════════════════════════════════════
+// ══════════════════════════════════════════════
+// ÉTAPES
+// ══════════════════════════════════════════════
 const STEPS = [
-  {id:1, location:'Grand Arbre',       emoji:'🌳', color:'color-1',
-   mission:'Bienvenue, aventuriers ! Approchez du Grand Arbre et appuyez sur le bouton ci-dessous pour recevoir le message secret du Lapin Magique !',
-   type:'action', actionLabel:'🌟 On part à l\'aventure !',
-   celebEmoji:'🌟', celebTitle:'Super !', celebMsg:'Le Grand Arbre vous a délivré son message !'},
+  { id:1,  loc:'Grand Arbre',       ico:'🌳', col:'c1',
+    txt:'Bienvenue, aventuriers ! Scannez le QR code magique accroché sur le Grand Arbre pour recevoir le message du Lapin Magique !',
+    type:'qr',
+    celIco:'🌟', celTtl:'Super !', celMsg:'Le Grand Arbre vous a délivré son message !' },
 
-  {id:2, location:'La Cave',           emoji:'🥚', color:'color-2',
-   mission:'Des œufs de Pâques sont cachés dans la cave ! Cherchez-les tous et comptez-les. Combien y en a-t-il ?',
-   type:'number', answer:5,
-   correctMsg:'Bravo ! Vous avez trouvé tous les œufs ! 🥚', wrongMsg:'Pas tout à fait... cherchez encore !',
-   celebEmoji:'🥚', celebTitle:'Incroyable !', celebMsg:'5 œufs retrouvés ! La cave n\'a plus de secrets !'},
+  { id:2,  loc:'La Cave',           ico:'🥚', col:'c2',
+    txt:'Des œufs de Pâques sont cachés dans la cave ! Cherchez-les tous et comptez-les. Combien y en a-t-il ?',
+    type:'number', ans:5,
+    ok:'Bravo ! Vous avez trouvé tous les œufs ! 🥚', ko:'Pas tout à fait... cherchez encore !',
+    celIco:'🥚', celTtl:'Incroyable !', celMsg:'5 œufs retrouvés ! La cave n\'a plus de secrets !' },
 
-  {id:3, location:'Sortie Cave',       emoji:'🕸️', color:'color-3',
-   mission:'Un laser de laine magique bloque votre chemin ! Comptez soigneusement tous les fils de laine avant de traverser.',
-   type:'number', answer:7, isSecretCode:true, secretIndex:0, secretValue:7,
-   correctMsg:'🔑 Incroyable ! Le chiffre 7 est gravé dans votre mémoire !', wrongMsg:'Recomptez les fils de laine...',
-   celebEmoji:'🔑', celebTitle:'Magnifique !', celebMsg:'Le chiffre 7 rejoint vos secrets !'},
+  { id:3,  loc:'Sortie Cave',       ico:'🕸️', col:'c3',
+    txt:'Un laser de laine magique bloque votre chemin ! Comptez soigneusement tous les fils de laine avant de traverser.',
+    type:'number', ans:7, secret:true, sIdx:0, sVal:7,
+    ok:'🔑 Incroyable ! Le chiffre 7 est gravé dans votre mémoire !', ko:'Recomptez les fils de laine...',
+    celIco:'🔑', celTtl:'Magnifique !', celMsg:'Le chiffre 7 rejoint vos secrets !' },
 
-  {id:4, location:'Le Garage',         emoji:'🐰', color:'color-4',
-   mission:'Le lapin de Pâques vous observe ! Pour continuer votre quête, vous devez tous sauter comme des lapins jusqu\'au bout du garage !',
-   type:'action', actionLabel:'🐰 J\'ai sauté comme un lapin !',
-   celebEmoji:'🐰', celebTitle:'Hop hop hop !', celebMsg:'Vous sautez mieux que le lapin lui-même !'},
+  { id:4,  loc:'Le Garage',         ico:'🐰', col:'c4',
+    txt:'Le lapin de Pâques vous observe ! Pour continuer votre quête, vous devez tous sauter comme des lapins jusqu\'au bout du garage !',
+    type:'action', actLbl:'🐰 J\'ai sauté comme un lapin !',
+    celIco:'🐰', celTtl:'Hop hop hop !', celMsg:'Vous sautez mieux que le lapin lui-même !' },
 
-  {id:5, location:'Le Jardin',         emoji:'🌸', color:'color-5',
-   mission:'Quelque part dans le jardin, un arbre porte un ruban doré. Trouvez-le et dites-moi son nom !',
-   riddle:'🎀 Je porte un ruban d\'or comme un cadeau de Pâques... Quel arbre suis-je ?',
-   type:'text', answer:'POMMIER',
-   correctMsg:'Excellent ! Le Pommier gardait bien son secret ! 🌸', wrongMsg:'Ce n\'est pas le bon arbre... cherchez le ruban doré !',
-   celebEmoji:'🌸', celebTitle:'Brillant !', celebMsg:'Le Pommier doré était bien là !'},
+  { id:5,  loc:'Le Jardin',         ico:'🌸', col:'c5',
+    txt:'Quelque part dans le jardin, un arbre porte un ruban doré. Trouvez-le et dites-moi son nom !',
+    rdl:'🎀 Je porte un ruban d\'or comme un cadeau de Pâques... Quel arbre suis-je ?',
+    type:'text', ans:'POMMIER',
+    ok:'Excellent ! Le Pommier gardait bien son secret ! 🌸', ko:'Ce n\'est pas le bon arbre... cherchez le ruban doré !',
+    celIco:'🌸', celTtl:'Brillant !', celMsg:'Le Pommier doré était bien là !' },
 
-  {id:6, location:'La Pelouse',        emoji:'🎵', color:'color-6',
-   mission:'C\'est l\'heure des Statues Musicales ! Quand la musique s\'arrête, ne bougez plus ! Faites une partie et appuyez sur le bouton quand c\'est fini.',
-   type:'action', actionLabel:'🎵 Statues réussies !',
-   celebEmoji:'🎵', celebTitle:'Figés !', celebMsg:'Vous êtes de vraies statues musicales !'},
+  { id:6,  loc:'La Pelouse',        ico:'🎵', col:'c6',
+    txt:'C\'est l\'heure des Statues Musicales ! Quand la musique s\'arrête, ne bougez plus ! Faites une partie et appuyez sur le bouton quand c\'est fini.',
+    type:'action', actLbl:'🎵 Statues réussies !',
+    celIco:'🎵', celTtl:'Figés !', celMsg:'Vous êtes de vraies statues musicales !' },
 
-  {id:7, location:'Petit Abri',        emoji:'🎈', color:'color-7',
-   mission:'Un ballon à hélium contient un secret ! Éclatez-le pour découvrir le chiffre caché à l\'intérieur.',
-   type:'number', answer:6, isSecretCode:true, secretIndex:1, secretValue:6,
-   correctMsg:'🔑 Fantastique ! Le chiffre 6 rejoint votre collection !', wrongMsg:'Regardez bien le papier dans le ballon...',
-   celebEmoji:'💥', celebTitle:'BOOM !', celebMsg:'Le ballon révèle le chiffre 6 !'},
+  { id:7,  loc:'Petit Abri',        ico:'🎈', col:'c7',
+    txt:'Un ballon à hélium contient un secret ! Éclatez-le pour découvrir le chiffre caché à l\'intérieur.',
+    type:'number', ans:6, secret:true, sIdx:1, sVal:6,
+    ok:'🔑 Fantastique ! Le chiffre 6 rejoint votre collection !', ko:'Regardez bien le papier dans le ballon...',
+    celIco:'💥', celTtl:'BOOM !', celMsg:'Le ballon révèle le chiffre 6 !' },
 
-  {id:8, location:'La Cuisine',        emoji:'🍴', color:'color-8',
-   mission:'Une devinette vous attend dans la cuisine ! Lisez bien et trouvez la réponse...',
-   riddle:'🤔 J\'ai des dents mais je ne mords jamais. On me trouve à table mais je ne mange pas. Qui suis-je ?',
-   type:'text', answer:'FOURCHETTE',
-   correctMsg:'Parfait ! La Fourchette vous salue ! 🍴', wrongMsg:'Réfléchissez... j\'ai des dents mais je ne mords pas !',
-   celebEmoji:'🍴', celebTitle:'Malin !', celebMsg:'La fourchette avait bien des dents !'},
+  { id:8,  loc:'La Cuisine',        ico:'🍴', col:'c8',
+    txt:'Une devinette vous attend dans la cuisine ! Lisez bien et trouvez la réponse...',
+    rdl:'🤔 J\'ai des dents mais je ne mords jamais. On me trouve à table mais je ne mange pas. Qui suis-je ?',
+    type:'text', ans:'FOURCHETTE',
+    ok:'Parfait ! La Fourchette vous salue ! 🍴', ko:'Réfléchissez... j\'ai des dents mais je ne mords pas !',
+    celIco:'🍴', celTtl:'Malin !', celMsg:'La fourchette avait bien des dents !' },
 
-  {id:9, location:'Le Salon',          emoji:'🧩', color:'color-9',
-   mission:'Un puzzle représentant un œuf de Pâques a été dispersé ! Reconstituez-le et notez le chiffre qui apparaît.',
-   type:'number', answer:5,
-   correctMsg:'Magnifique ! Le puzzle révèle son secret ! 🧩', wrongMsg:'Regardez bien le chiffre sur le puzzle assemblé...',
-   celebEmoji:'🧩', celebTitle:'Parfait !', celebMsg:'Le puzzle de l\'œuf est reconstitué !'},
+  { id:9,  loc:'Le Salon',          ico:'🧩', col:'c9',
+    txt:'Un puzzle représentant un œuf de Pâques a été dispersé ! Reconstituez-le et notez le chiffre qui apparaît.',
+    type:'number', ans:5,
+    ok:'Magnifique ! Le puzzle révèle son secret ! 🧩', ko:'Regardez bien le chiffre sur le puzzle assemblé...',
+    celIco:'🧩', celTtl:'Parfait !', celMsg:'Le puzzle de l\'œuf est reconstitué !' },
 
-  {id:10, location:'Le Couloir',       emoji:'🌋', color:'color-10',
-   mission:'ATTENTION ! Le sol du couloir s\'est transformé en LAVE ! Vous devez traverser uniquement en marchant sur les coussins !',
-   type:'action', actionLabel:'🌋 J\'ai traversé sans toucher la lave !',
-   celebEmoji:'🌋', celebTitle:'Survivants !', celebMsg:'Vous avez traversé la lave sans brûler !'},
+  { id:10, loc:'Le Couloir',        ico:'🌋', col:'c10',
+    txt:'ATTENTION ! Le sol du couloir s\'est transformé en LAVE ! Vous devez traverser uniquement en marchant sur les coussins !',
+    type:'action', actLbl:'🌋 J\'ai traversé sans toucher la lave !',
+    celIco:'🌋', celTtl:'Survivants !', celMsg:'Vous avez traversé la lave sans brûler !' },
 
-  {id:11, location:'La Salle de Bain', emoji:'🪞', color:'color-11',
-   mission:'Un miroir magique révèle un message secret ! Regardez le mot ci-dessous dans le miroir pour le lire correctement.',
-   type:'mirror', answer:'LAPIN',
-   correctMsg:'Brillant ! Le miroir ne ment pas ! 🐰', wrongMsg:'Regardez le mot dans le miroir... lisez ce que vous voyez !',
-   celebEmoji:'🪞', celebTitle:'Mystérieux !', celebMsg:'Le miroir révèle LAPIN !'},
+  { id:11, loc:'La Salle de Bain',  ico:'🪞', col:'c11',
+    txt:'Un miroir magique révèle un message secret ! Regardez le mot ci-dessous dans le miroir pour le lire correctement.',
+    type:'mirror', ans:'LAPIN',
+    ok:'Brillant ! Le miroir ne ment pas ! 🐰', ko:'Regardez le mot dans le miroir... lisez ce que vous voyez !',
+    celIco:'🪞', celTtl:'Mystérieux !', celMsg:'Le miroir révèle LAPIN !' },
 
-  {id:12, location:'La Terrasse',      emoji:'🎭', color:'color-12',
-   mission:'Pour débloquer cette étape, les enfants doivent faire un spectacle Zootopie 2 devant au moins 3 adultes ! Après le spectacle, demandez le code secret aux adultes.',
-   riddle:'🎬 Jouez une scène de Zootopie 2 devant 3 adultes. Les adultes vous donneront le mot de passe s\'ils ont été impressionnés !',
-   type:'text', answer:'JUDY', placeholder:'CODE ADULTE',
-   correctMsg:'Quel talent ! Les adultes sont impressionnés ! 🌟', wrongMsg:'Ce n\'est pas le bon code... demandez aux adultes !',
-   celebEmoji:'🌟', celebTitle:'Spectaculaires !', celebMsg:'Les adultes sont sous le charme !'},
+  { id:12, loc:'La Terrasse',       ico:'🎭', col:'c12',
+    txt:'Pour débloquer cette étape, les enfants doivent faire un spectacle Zootopie 2 devant au moins 3 adultes ! Après le spectacle, demandez le code secret aux adultes.',
+    rdl:'🎬 Jouez une scène de Zootopie 2 devant 3 adultes. Les adultes vous donneront le mot de passe s\'ils ont été impressionnés !',
+    type:'text', ans:'JUDY', ph:'CODE ADULTE',
+    ok:'Quel talent ! Les adultes sont impressionnés ! 🌟', ko:'Ce n\'est pas le bon code... demandez aux adultes !',
+    celIco:'🌟', celTtl:'Spectaculaires !', celMsg:'Les adultes sont sous le charme !' },
 
-  {id:13, location:'Jardin (Cailloux)',emoji:'🪨', color:'color-13',
-   mission:'Le dernier chiffre secret est caché sous les cailloux du jardin ! Soulevez-les pour trouver le mystérieux chiffre.',
-   type:'number', answer:2, isSecretCode:true, secretIndex:2, secretValue:2,
-   correctMsg:'🔑 INCROYABLE ! Le chiffre 2 complète votre code secret !', wrongMsg:'Continuez de chercher sous les cailloux...',
-   celebEmoji:'🪨', celebTitle:'Détectives !', celebMsg:'Le chiffre 2 était sous les cailloux !'},
+  { id:13, loc:'Jardin (Cailloux)', ico:'🪨', col:'c13',
+    txt:'Le dernier chiffre secret est caché sous les cailloux du jardin ! Soulevez-les pour trouver le mystérieux chiffre.',
+    type:'number', ans:2, secret:true, sIdx:2, sVal:2,
+    ok:'🔑 INCROYABLE ! Le chiffre 2 complète votre code secret !', ko:'Continuez de chercher sous les cailloux...',
+    celIco:'🪨', celTtl:'Détectives !', celMsg:'Le chiffre 2 était sous les cailloux !' },
 
-  {id:14, location:'Le Salon — Final', emoji:'🏆', color:'color-14',
-   mission:'Vous avez tous les chiffres ! Entrez le code secret à 3 chiffres pour déverrouiller le TRÉSOR !',
-   riddle:'🔐 Regardez vos 3 chiffres dorés en haut de l\'écran et entrez-les dans le cadenas !',
-   type:'final'},
+  { id:14, loc:'Le Salon — Final',  ico:'🏆', col:'c14',
+    txt:'Vous avez tous les chiffres ! Entrez le code secret à 3 chiffres pour déverrouiller le TRÉSOR !',
+    rdl:'🔐 Regardez vos 3 chiffres dorés en haut de l\'écran et entrez-les dans le cadenas !',
+    type:'final' },
 ];
 
-// ═══════════════════════════════════════════
+// ══════════════════════════════════════════════
 // STATE
-// ═══════════════════════════════════════════
-let currentStep = 1;
-let unlockedSlots = [false, false, false];
-let numberInputValues = {};
-let audioElements = {};
-let currentAudio = null;
-let fingerprints = {};
+// ══════════════════════════════════════════════
+let step       = 1;
+let unlocked   = [false, false, false];
+let numVals    = {};
+let audElems   = {};
+let curAud     = null;
+let fps        = {};          // fingerprints  { stepId: { kidIdx: bool } }
+let qrStream   = null;
+let qrFrame    = null;
 
-// ═══════════════════════════════════════════
-// BACKGROUND
-// ═══════════════════════════════════════════
-function createBgEggs() {
+// ══════════════════════════════════════════════
+// BACKGROUND FLOATERS
+// ══════════════════════════════════════════════
+function initBg() {
   const c = document.getElementById('bgEggs');
   const e = ['🥚','🐰','🌸','✨','🌷','🍬','🐣','🌼','🎀','🦋','⭐','🌟'];
   for (let i = 0; i < 18; i++) {
-    const el = document.createElement('div');
-    el.className = 'bg-egg';
-    el.textContent = e[i % e.length];
-    el.style.left = (Math.random() * 100) + '%';
-    el.style.fontSize = (1.2 + Math.random() * 2) + 'rem';
-    el.style.animationDuration = (10 + Math.random() * 14) + 's';
-    el.style.animationDelay = '-' + (Math.random() * 18) + 's';
-    c.appendChild(el);
+    const d = document.createElement('div');
+    d.className = 'bg-egg';
+    d.textContent = e[i % e.length];
+    d.style.cssText = `left:${Math.random()*100}%;font-size:${1.2+Math.random()*2}rem;animation-duration:${10+Math.random()*14}s;animation-delay:-${Math.random()*18}s`;
+    c.appendChild(d);
   }
 }
 
-// ═══════════════════════════════════════════
+// ══════════════════════════════════════════════
 // FINGERPRINTS
-// ═══════════════════════════════════════════
-function initFP(id) { if (!fingerprints[id]) fingerprints[id] = {}; }
-function allStamped(id) { return CHILDREN.every((_, i) => !!fingerprints[id]?.[i]); }
+// ══════════════════════════════════════════════
+function fpInit(id)    { if (!fps[id]) fps[id] = {}; }
+function fpAll(id)     { return KIDS.every((_, i) => !!fps[id]?.[i]); }
 
-function stampFP(stepId, idx) {
-  initFP(stepId);
-  fingerprints[stepId][idx] = true;
-  const btn = document.getElementById(`fp-${stepId}-${idx}`);
-  if (btn) { btn.classList.add('stamped'); btn.style.background = CHILDREN[idx].color; }
-  burstStars(btn);
-  const n = document.getElementById('fpNotice' + stepId);
+function fpStamp(sid, idx) {
+  fpInit(sid);
+  fps[sid][idx] = true;
+  const b = document.getElementById(`fp-${sid}-${idx}`);
+  if (b) { b.classList.add('ok'); b.style.background = KIDS[idx].color; }
+  stars(b);
+  const n = document.getElementById(`fpNote-${sid}`);
   if (n) {
-    const done = allStamped(stepId);
+    const done = fpAll(sid);
     n.textContent = done ? '✅ Tout le monde a validé !' : '⚠️ Il manque des empreintes !';
-    n.className = 'fp-notice' + (done ? ' all-ok' : '');
+    n.className = 'fp-note' + (done ? ' done' : '');
   }
 }
 
-function checkFP(stepId) {
-  if (!allStamped(stepId)) {
-    showFeedback(stepId, '⚠️ Les 5 aventuriers doivent d\'abord apposer leur empreinte !', false);
-    const s = document.getElementById('fpSection' + stepId);
-    if (s) { s.style.borderColor = '#FF6B6B'; s.style.background = '#FFF0F0'; setTimeout(() => { s.style.borderColor = ''; s.style.background = ''; }, 1600); }
-    return false;
+function fpCheck(sid) {
+  if (fpAll(sid)) return true;
+  showFb(sid, '⚠️ Les 5 aventuriers doivent d\'abord apposer leur empreinte !', false);
+  const box = document.getElementById(`fpBox-${sid}`);
+  if (box) {
+    box.style.borderColor = '#FF6B6B'; box.style.background = '#FFF0F0';
+    setTimeout(() => { box.style.borderColor = ''; box.style.background = ''; }, 1600);
   }
-  return true;
+  return false;
 }
 
-function buildFP(stepId) {
-  initFP(stepId);
-  return `<div class="fp-section" id="fpSection${stepId}">
-    <div class="fp-title">🖐️ Les 5 aventuriers apposent leur empreinte !</div>
-    <div class="fp-grid">${CHILDREN.map((c, i) => {
-      const s = fingerprints[stepId][i];
-      return `<div class="fp-child"><button class="fp-btn${s ? ' stamped' : ''}" id="fp-${stepId}-${i}" style="border-color:${c.border};${s ? 'background:' + c.color : ''}" onclick="stampFP(${stepId},${i})">${c.emoji}</button><div class="fp-name">${c.name}</div></div>`;
-    }).join('')}</div>
-    <div class="fp-notice${allStamped(stepId) ? ' all-ok' : ''}" id="fpNotice${stepId}">${allStamped(stepId) ? '✅ Tout le monde a validé !' : '⚠️ Il manque des empreintes !'}</div>
-  </div>`;
+function buildFP(sid) {
+  fpInit(sid);
+  return `
+    <div class="fp-box" id="fpBox-${sid}">
+      <div class="fp-ttl">🖐️ Les 5 aventuriers apposent leur empreinte !</div>
+      <div class="fp-grid">
+        ${KIDS.map((k, i) => {
+          const done = fps[sid][i];
+          return `<div class="fp-kid">
+            <button class="fp-btn${done?' ok':''}" id="fp-${sid}-${i}"
+              style="border-color:${k.border};${done?'background:'+k.color:''}"
+              onclick="fpStamp(${sid},${i})">${k.emoji}</button>
+            <div class="fp-name">${k.name}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="fp-note${fpAll(sid)?' done':''}" id="fpNote-${sid}">
+        ${fpAll(sid) ? '✅ Tout le monde a validé !' : '⚠️ Il manque des empreintes !'}
+      </div>
+    </div>`;
 }
 
-// ═══════════════════════════════════════════
+// ══════════════════════════════════════════════
+// AUDIO BTN HTML
+// ══════════════════════════════════════════════
+function audioBtn(sid) {
+  return `
+    <button class="audio-btn" id="audBtn-${sid}" onclick="toggleAud(${sid})">
+      <span class="a-ico">🎵</span>
+      <span class="a-lbl">Message du Lapin Magique</span>
+      <div class="a-wave hidden" id="wave-${sid}">
+        <div class="wbar"></div><div class="wbar"></div><div class="wbar"></div>
+        <div class="wbar"></div><div class="wbar"></div>
+      </div>
+    </button>`;
+}
+
+// ══════════════════════════════════════════════
 // RENDER
-// ═══════════════════════════════════════════
-function renderStep(step) {
-  const c = document.getElementById('main');
-  c.innerHTML = '';
+// ══════════════════════════════════════════════
+function render(s) {
+  const main = document.getElementById('main');
+  main.innerHTML = '';
   const card = document.createElement('div');
   card.className = 'step-card';
   card.innerHTML = `
-    <div class="step-header ${step.color}">
-      <div class="step-num">Étape ${step.id} / 14</div>
-      <div class="step-location">${step.location}</div>
-      <div class="step-emoji">${step.emoji}</div>
+    <div class="step-hdr ${s.col}">
+      <div class="step-n">Étape ${s.id} / 14</div>
+      <div class="step-loc">${s.loc}</div>
+      <div class="step-ico">${s.ico}</div>
     </div>
     <div class="step-body">
-      ${step.mission ? `<div class="step-mission">${step.mission}</div>` : ''}
-      ${step.riddle  ? `<div class="step-riddle">${step.riddle}</div>`   : ''}
-      ${buildStepContent(step)}
+      ${s.txt ? `<div class="step-txt">${s.txt}</div>` : ''}
+      ${s.rdl ? `<div class="step-rdl">${s.rdl}</div>` : ''}
+      ${buildContent(s)}
     </div>`;
-  c.appendChild(card);
+  main.appendChild(card);
   window.scrollTo(0, 0);
-  updateProgress();
-  attachListeners(step);
+  updateProg();
+  attachListeners(s);
 }
 
-function buildStepContent(step) {
-  let h = '';
+function buildContent(s) {
+  // Fingerprints sur étapes 2-13 (pas départ QR ni final)
+  const needFP = s.id > 1 && s.id < 14;
+  let h = needFP ? buildFP(s.id) : '';
 
-  // Fingerprints sur toutes les étapes sauf step 1 (QR départ) et step 14 (final)
-  const needFP = step.id !== 1 && step.id !== 14;
-  if (needFP) h += buildFP(step.id);
+  switch (s.type) {
 
-  switch (step.type) {
-
-    // ── AUDIO classique (bouton) ──
-    case 'number':
+    case 'qr':
+      // Étape 1 : scanner QR → joue l'audio correspondant
       h += `
-        <button class="audio-btn" id="audioBtn${step.id}" onclick="toggleAudio(${step.id})">
-          <span class="audio-icon">🎵</span>
-          <span class="audio-label">Message du Lapin Magique</span>
-          <div class="audio-wave hidden" id="wave${step.id}">
-            <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+        <div class="qr-wrap">
+          <button class="qr-open-btn" id="qrOpenBtn-${s.id}" onclick="openQR(${s.id})">
+            📷 Scanner le QR Code Magique
+          </button>
+          <div class="qr-viewport" id="qrView-${s.id}">
+            <video id="qrVid-${s.id}" autoplay playsinline muted></video>
+            <div class="overlay"><div class="qr-frame"></div></div>
           </div>
-        </button>
-        <div class="number-input">
-          <button class="num-btn" onclick="changeNumber(${step.id},-1)">−</button>
-          <div class="num-display" id="numDisplay${step.id}">0</div>
-          <button class="num-btn" onclick="changeNumber(${step.id},1)">+</button>
+          <div class="qr-status" id="qrStat-${s.id}">Appuie sur le bouton pour activer la caméra</div>
         </div>
-        <button class="validate-btn" onclick="validateNumber(${step.id})">✅ Valider ma réponse</button>
-        <div class="feedback" id="feedback${step.id}"></div>
-        ${step.isSecretCode ? `<div class="chiffre-reveal" id="chiffreReveal${step.id}">
-          <div class="chiffre-label">✨ Chiffre secret découvert !</div>
-          <div class="chiffre-big">${step.secretValue}</div>
-          <div class="chiffre-note">Regarde le cercle doré en haut ! 👆</div>
-        </div>` : ''}
-        <button class="continue-btn hidden" id="nextBtn${step.id}" style="margin-top:10px" onclick="nextStep()">Continuer l'aventure ! ✨</button>`;
+        <div class="fb" id="fb-${s.id}"></div>
+        <button class="nxt-btn hidden" id="nxt-${s.id}" onclick="goNext()">Continuer l'aventure ! ✨</button>`;
+      break;
+
+    case 'number':
+      h += audioBtn(s.id) + `
+        <div class="num-row">
+          <button class="num-btn" onclick="changeNum(${s.id},-1)">−</button>
+          <div class="num-disp" id="numDisp-${s.id}">0</div>
+          <button class="num-btn" onclick="changeNum(${s.id},1)">+</button>
+        </div>
+        <button class="val-btn" onclick="valNum(${s.id})">✅ Valider ma réponse</button>
+        <div class="fb" id="fb-${s.id}"></div>
+        ${s.secret ? `
+          <div class="secret" id="sec-${s.id}">
+            <div class="sec-lbl">✨ Chiffre secret découvert !</div>
+            <div class="sec-num">${s.sVal}</div>
+            <div class="sec-note">Regarde le cercle doré en haut ! 👆</div>
+          </div>` : ''}
+        <button class="nxt-btn hidden" id="nxt-${s.id}" style="margin-top:10px" onclick="goNext()">Continuer l'aventure ! ✨</button>`;
       break;
 
     case 'text':
-      h += `
-        <button class="audio-btn" id="audioBtn${step.id}" onclick="toggleAudio(${step.id})">
-          <span class="audio-icon">🎵</span>
-          <span class="audio-label">Message du Lapin Magique</span>
-          <div class="audio-wave hidden" id="wave${step.id}">
-            <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
-          </div>
-        </button>
-        <input type="text" class="answer-input" id="textInput${step.id}"
-          placeholder="${step.placeholder || 'VOTRE RÉPONSE'}" maxlength="20"
+      h += audioBtn(s.id) + `
+        <input class="ans-input" id="ans-${s.id}" type="text"
+          placeholder="${s.ph || 'VOTRE RÉPONSE'}" maxlength="20"
           oninput="this.value=this.value.toUpperCase()"/>
-        <button class="validate-btn" onclick="validateText(${step.id})">✅ Valider ma réponse</button>
-        <div class="feedback" id="feedback${step.id}"></div>
-        <button class="continue-btn hidden" id="nextBtn${step.id}" style="margin-top:10px" onclick="nextStep()">Continuer l'aventure ! ✨</button>`;
+        <button class="val-btn" onclick="valText(${s.id})">✅ Valider ma réponse</button>
+        <div class="fb" id="fb-${s.id}"></div>
+        <button class="nxt-btn hidden" id="nxt-${s.id}" style="margin-top:10px" onclick="goNext()">Continuer l'aventure ! ✨</button>`;
       break;
 
     case 'action':
-      h += `
-        <button class="audio-btn" id="audioBtn${step.id}" onclick="toggleAudio(${step.id})">
-          <span class="audio-icon">🎵</span>
-          <span class="audio-label">Message du Lapin Magique</span>
-          <div class="audio-wave hidden" id="wave${step.id}">
-            <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
-          </div>
-        </button>
-        <button class="validate-btn action-btn" onclick="validateAction(${step.id})">${step.actionLabel || '✅ Mission accomplie !'}</button>
-        <div class="feedback" id="feedback${step.id}"></div>
-        <button class="continue-btn hidden" id="nextBtn${step.id}" style="margin-top:10px" onclick="nextStep()">Continuer l'aventure ! ✨</button>`;
+      h += audioBtn(s.id) + `
+        <button class="val-btn green" onclick="valAction(${s.id})">${s.actLbl || '✅ Mission accomplie !'}</button>
+        <div class="fb" id="fb-${s.id}"></div>
+        <button class="nxt-btn hidden" id="nxt-${s.id}" style="margin-top:10px" onclick="goNext()">Continuer l'aventure ! ✨</button>`;
       break;
 
     case 'mirror':
-      h += `
-        <button class="audio-btn" id="audioBtn${step.id}" onclick="toggleAudio(${step.id})">
-          <span class="audio-icon">🎵</span>
-          <span class="audio-label">Message du Lapin Magique</span>
-          <div class="audio-wave hidden" id="wave${step.id}">
-            <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
-          </div>
-        </button>
-        <div class="mirror-word">
-          <div class="mirror-word-text">LAPIN</div>
-          <div class="mirror-label">🪞 Lisez ce mot dans le miroir</div>
+      h += audioBtn(s.id) + `
+        <div class="mirror-box">
+          <div class="mirror-txt">LAPIN</div>
+          <div class="mirror-lbl">🪞 Lisez ce mot dans le miroir</div>
         </div>
-        <input type="text" class="answer-input" id="textInput${step.id}"
+        <input class="ans-input" id="ans-${s.id}" type="text"
           placeholder="CE QUE VOUS LISEZ" maxlength="20"
           oninput="this.value=this.value.toUpperCase()"/>
-        <button class="validate-btn" onclick="validateText(${step.id})">✅ Valider ma réponse</button>
-        <div class="feedback" id="feedback${step.id}"></div>
-        <button class="continue-btn hidden" id="nextBtn${step.id}" style="margin-top:10px" onclick="nextStep()">Continuer l'aventure ! ✨</button>`;
+        <button class="val-btn" onclick="valText(${s.id})">✅ Valider ma réponse</button>
+        <div class="fb" id="fb-${s.id}"></div>
+        <button class="nxt-btn hidden" id="nxt-${s.id}" style="margin-top:10px" onclick="goNext()">Continuer l'aventure ! ✨</button>`;
       break;
 
     case 'final':
-      h += `
-        <button class="audio-btn" id="audioBtn${step.id}" onclick="toggleAudio(${step.id})">
-          <span class="audio-icon">🎵</span>
-          <span class="audio-label">Message du Lapin Magique</span>
-          <div class="audio-wave hidden" id="wave${step.id}">
-            <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
-          </div>
-        </button>
-        <div class="numpad-wrap">
-          <div class="numpad-display">
-            <div class="numpad-circles">
-              <div class="numpad-circle" id="nc0"></div>
-              <div class="numpad-circle" id="nc1"></div>
-              <div class="numpad-circle" id="nc2"></div>
+      h += audioBtn(s.id) + `
+        <div class="npad">
+          <div class="npad-disp">
+            <div class="npad-dots">
+              <div class="npad-dot" id="nd0"></div>
+              <div class="npad-dot" id="nd1"></div>
+              <div class="npad-dot" id="nd2"></div>
             </div>
           </div>
-          <div class="numpad-grid">
-            ${[1,2,3,4,5,6,7,8,9].map(n => `<button class="numpad-key" onclick="numpadPress('${n}')">${n}</button>`).join('')}
-            <button class="numpad-key del" onclick="numpadDel()">⌫</button>
-            <button class="numpad-key" onclick="numpadPress('0')">0</button>
-            <button class="numpad-key ok" onclick="numpadOK()">OK !</button>
+          <div class="npad-grid">
+            ${[1,2,3,4,5,6,7,8,9].map(n=>`<button class="npad-key" onclick="npadPress('${n}')">${n}</button>`).join('')}
+            <button class="npad-key npad-del" onclick="npadDel()">⌫</button>
+            <button class="npad-key" onclick="npadPress('0')">0</button>
+            <button class="npad-key npad-ok" onclick="npadOK()">OK !</button>
           </div>
         </div>
-        <div class="feedback" id="feedback${step.id}"></div>`;
+        <div class="fb" id="fb-${s.id}"></div>`;
       break;
   }
   return h;
 }
 
-function attachListeners(step) {
-  if (step.type === 'text' || step.type === 'mirror') {
-    const inp = document.getElementById('textInput' + step.id);
-    if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') validateText(step.id); });
+function attachListeners(s) {
+  if (s.type === 'text' || s.type === 'mirror') {
+    const inp = document.getElementById(`ans-${s.id}`);
+    if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') valText(s.id); });
   }
 }
 
+// ══════════════════════════════════════════════
+// QR SCANNER — getUserMedia (HTTPS requis ✅)
+// ══════════════════════════════════════════════
+async function openQR(sid) {
+  stopQR();
+  const view   = document.getElementById(`qrView-${sid}`);
+  const stat   = document.getElementById(`qrStat-${sid}`);
+  const openBt = document.getElementById(`qrOpenBtn-${sid}`);
+  const vid    = document.getElementById(`qrVid-${sid}`);
 
+  stat.textContent = '🔍 Activation de la caméra…';
+  stat.className   = 'qr-status';
 
-// ═══════════════════════════════════════════
-// VALIDATION
-// ═══════════════════════════════════════════
-function changeNumber(stepId, delta) {
-  if (!numberInputValues[stepId]) numberInputValues[stepId] = 0;
-  numberInputValues[stepId] = Math.max(0, numberInputValues[stepId] + delta);
-  const d = document.getElementById('numDisplay' + stepId);
-  if (d) d.textContent = numberInputValues[stepId];
-}
+  try {
+    qrStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
+    vid.srcObject = qrStream;
+    await vid.play();
 
-function validateNumber(stepId) {
-  if (!checkFP(stepId)) return;
-  const step = STEPS.find(s => s.id === stepId);
-  const val  = numberInputValues[stepId] || 0;
-  if (val === step.answer) {
-    showFeedback(stepId, '✅ ' + step.correctMsg, true);
-    burstStars(document.getElementById('feedback' + stepId));
-    if (step.isSecretCode) {
-      unlockSlot(step.secretIndex, step.secretValue);
-      document.getElementById('chiffreReveal' + stepId)?.classList.add('show');
-    }
-    document.getElementById('nextBtn' + stepId)?.classList.remove('hidden');
-  } else {
-    showFeedback(stepId, '❌ ' + step.wrongMsg, false);
-    setTimeout(() => hideFeedback(stepId), 2500);
+    view.classList.add('active');
+    if (openBt) openBt.textContent = '⏹ Fermer la caméra';
+    if (openBt) openBt.onclick = () => { stopQR(); if(openBt){ openBt.textContent='📷 Scanner le QR Code Magique'; openBt.onclick=()=>openQR(sid); } };
+
+    stat.textContent = '🔍 Pointez vers le QR code…';
+    qrFrame = requestAnimationFrame(() => scanLoop(sid, vid));
+
+  } catch (err) {
+    let msg = '📷 Erreur caméra — vérifie les permissions du navigateur.';
+    if (err.name === 'NotAllowedError')  msg = '📷 Permission refusée. Autorise la caméra dans les réglages, puis réessaie.';
+    if (err.name === 'NotFoundError')    msg = '📷 Aucune caméra trouvée sur cet appareil.';
+    if (err.name === 'NotReadableError') msg = '📷 Caméra déjà utilisée par une autre appli.';
+    stat.textContent = msg;
+    stat.className = 'qr-status err';
+    // Afficher quand même le bouton Continuer en fallback
+    showFb(sid, msg + ' — Appuie sur Continuer pour passer.', false);
+    document.getElementById(`nxt-${sid}`)?.classList.remove('hidden');
   }
 }
 
-function validateText(stepId) {
-  if (!checkFP(stepId)) return;
-  const step  = STEPS.find(s => s.id === stepId);
-  const input = document.getElementById('textInput' + stepId);
-  const val   = (input?.value || '').trim().toUpperCase();
-  if (val === step.answer) {
-    input?.classList.add('correct');
-    showFeedback(stepId, '✅ ' + step.correctMsg, true);
-    burstStars(input);
-    document.getElementById('nextBtn' + stepId)?.classList.remove('hidden');
-  } else {
-    input?.classList.add('wrong');
-    showFeedback(stepId, '❌ ' + step.wrongMsg, false);
-    setTimeout(() => { input?.classList.remove('wrong'); hideFeedback(stepId); }, 2500);
-  }
-}
+function scanLoop(sid, vid) {
+  if (!qrStream) return;
 
-function validateAction(stepId) {
-  if (stepId !== 1 && !checkFP(stepId)) return;
-  showFeedback(stepId, '✅ Mission accomplie avec brio ! 🌟', true);
-  burstStars(document.getElementById('feedback' + stepId));
-  document.getElementById('nextBtn' + stepId)?.classList.remove('hidden');
-}
-
-function showFeedback(id, msg, ok) {
-  const el = document.getElementById('feedback' + id);
-  if (!el) return; el.textContent = msg; el.className = 'feedback ' + (ok ? 'success' : 'error');
-}
-function hideFeedback(id) {
-  const el = document.getElementById('feedback' + id); if (el) el.style.display = 'none';
-}
-
-// ═══════════════════════════════════════════
-// NUMPAD
-// ═══════════════════════════════════════════
-let numpadCode = '';
-function numpadPress(d) { if (numpadCode.length < 3) { numpadCode += d; updateNumpadDisplay(); } }
-function numpadDel()    { numpadCode = numpadCode.slice(0, -1); updateNumpadDisplay(); }
-function updateNumpadDisplay() {
-  for (let i = 0; i < 3; i++) {
-    const el = document.getElementById('nc' + i);
-    if (el) { el.textContent = numpadCode[i] || ''; el.classList.toggle('active', !!numpadCode[i]); }
-  }
-}
-function numpadOK() {
-  if (numpadCode === '762') {
-    showFeedback(14, '🏆 CODE CORRECT ! Le trésor est déverrouillé !', true);
-    burstStars(document.getElementById('feedback14'));
-    setTimeout(showFinalScreen, 1500);
-  } else {
-    showFeedback(14, '❌ Code incorrect... regardez vos cercles dorés !', false);
-    numpadCode = ''; updateNumpadDisplay();
-    setTimeout(() => hideFeedback(14), 2200);
-  }
-}
-
-// ═══════════════════════════════════════════
-// SLOTS
-// ═══════════════════════════════════════════
-function unlockSlot(index, value) {
-  if (unlockedSlots[index]) return;
-  unlockedSlots[index] = true;
-  const s = document.getElementById('slot-' + index);
-  if (s) { s.textContent = value; s.classList.add('filled'); launchConfetti(); }
-}
-
-// ═══════════════════════════════════════════
-// NAVIGATION
-// ═══════════════════════════════════════════
-function nextStep() {
-  const s = STEPS.find(x => x.id === currentStep);
-  document.getElementById('celebEmoji').textContent = s?.celebEmoji || '🎉';
-  document.getElementById('celebTitle').textContent = s?.celebTitle || 'Bravo !';
-  document.getElementById('celebMsg').textContent   = s?.celebMsg   || 'Continuez !';
-  document.getElementById('celebration').classList.add('show');
-  launchConfetti();
-}
-
-document.getElementById('celebNext').addEventListener('click', () => {
-  document.getElementById('celebration').classList.remove('show');
-  currentStep++;
-  if (currentStep <= 14) renderStep(STEPS[currentStep - 1]);
-});
-
-function showFinalScreen() {
-  launchConfetti();
-  document.getElementById('finalScreen').classList.add('show');
-  setTimeout(launchConfetti, 700);
-  setTimeout(launchConfetti, 1600);
-  setTimeout(launchConfetti, 2600);
-}
-
-function updateProgress() {
-  const pct = ((currentStep - 1) / 14) * 100;
-  document.getElementById('progressBar').style.width = pct + '%';
-  document.getElementById('progressText').textContent = `Étape ${currentStep} / 14`;
-}
-
-// ═══════════════════════════════════════════
-// AUDIO — bouton (Google Drive MP3)
-// ═══════════════════════════════════════════
-async function toggleAudio(stepId) {
-  const btn  = document.getElementById('audioBtn'  + stepId);
-  const wave = document.getElementById('wave' + stepId);
-  const url  = AUDIO_URLS[stepId];
-
-  if (!url) {
-    if (btn) {
-      const l = btn.querySelector('.audio-label');
-      if (l) l.textContent = '⚠️ Audio non configuré';
-      btn.style.opacity = '.55';
-    }
+  const canvas = document.createElement('canvas');
+  if (!vid || vid.readyState < 2 || vid.videoWidth === 0) {
+    qrFrame = requestAnimationFrame(() => scanLoop(sid, vid));
     return;
   }
 
-  // Ne pas tenter HEAD depuis file:// ou origin null (CORS bloqué par Google).
-  const isLocalFile = location.protocol === 'file:' || location.origin === 'null';
-  if (!isLocalFile) {
-    try {
-      const headerResp = await fetch(url, { method: 'HEAD', mode:'cors' });
-      if (headerResp.status === 403) {
-        if (btn) {
-          const l = btn.querySelector('.audio-label');
-          if (l) l.textContent = '⚠️ Audio non partagé';
-          btn.style.opacity = '.55';
-        }
-        alert('Erreur 403 : ton fichier audio Google Drive n’est pas accessible publiquement. Configure le partage en "Toute personne disposant du lien".');
-        console.warn('Audio URL 403 Forbidden (step ' + stepId + '):', url);
-        return;
-      }
-    } catch (err) {
-      console.warn('HEAD request pour audio non autorisée ou impossible:', err);
-    }
+  canvas.width  = vid.videoWidth;
+  canvas.height = vid.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(vid, 0, 0);
+
+  let code = null;
+  try { code = jsQR(ctx.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height); } catch(e) {}
+
+  if (code && code.data) {
+    stopQR();
+    const stat = document.getElementById(`qrStat-${sid}`);
+    if (stat) { stat.textContent = '✅ QR scanné ! Message débloqué !'; stat.className = 'qr-status ok'; }
+    showFb(sid, '✅ QR Code scanné ! Le Lapin vous parle… 🐰', true);
+    stars(document.getElementById(`fb-${sid}`));
+    document.getElementById(`nxt-${sid}`)?.classList.remove('hidden');
+
+    // Joue l'URL du QR si c'est un lien, sinon fallback AUDIO[sid]
+    const url = (code.data.startsWith('http') ? code.data : null) || AUDIO[sid];
+    if (url) playUrl(url);
+
   } else {
-    console.warn('Origin local (null/file://), on saute le test HEAD et on essaye la lecture directe.');
+    qrFrame = requestAnimationFrame(() => scanLoop(sid, vid));
   }
-
-  // Si une autre piste tourne, on l'arrête
-  if (currentAudio && !currentAudio.paused) {
-    currentAudio.pause();
-    const pb = document.getElementById('audioBtn'  + currentAudio._sid);
-    const pw = document.getElementById('wave' + currentAudio._sid);
-    pb?.classList.remove('playing');
-    pw?.classList.add('hidden');
-    if (pb) {
-      const l = pb.querySelector('.audio-label');
-      if (l) l.textContent = 'Message du Lapin Magique';
-    }
-    if (currentAudio._sid === stepId) { currentAudio = null; return; }
-  }
-
-  if (!audioElements[stepId]) {
-    audioElements[stepId] = new Audio(url);
-    audioElements[stepId]._sid = stepId;
-    audioElements[stepId].addEventListener('ended', () => {
-      const b = document.getElementById('audioBtn' + stepId);
-      const w = document.getElementById('wave' + stepId);
-      b?.classList.remove('playing');
-      w?.classList.add('hidden');
-      if (b) {
-        const l = b.querySelector('.audio-label');
-        if (l) l.textContent = 'Message du Lapin Magique';
-      }
-      if (currentAudio === audioElements[stepId]) currentAudio = null;
-    });
-    audioElements[stepId].addEventListener('error', () => {
-      if (btn) {
-        const l = btn.querySelector('.audio-label');
-        if (l) l.textContent = '⚠️ Impossible de charger l’audio';
-      }
-      wave?.classList.add('hidden');
-      currentAudio = null;
-    });
-  }
-
-  currentAudio = audioElements[stepId];
-  currentAudio._sid = stepId;
-
-  currentAudio.play().then(() => {
-    if (btn) {
-      btn.classList.add('playing');
-      const l = btn.querySelector('.audio-label');
-      if (l) l.textContent = '🎵 En lecture…';
-      btn.style.opacity = '1';
-    }
-    if (wave) wave.classList.remove('hidden');
-  }).catch((err) => {
-    if (btn) {
-      const l = btn.querySelector('.audio-label');
-      if (l) l.textContent = '⚠️ Lecture impossible';
-      btn.style.opacity = '.55';
-    }
-    if (wave) wave.classList.add('hidden');
-    console.warn('Audio playback error (step ' + stepId + ')', err);
-
-    // Indicatif pour debug plus précis : message utilisateur
-    if (!navigator.onLine) {
-      alert('Veuillez vérifier la connexion Internet, lecture audio impossible en mode hors-ligne.');
-    } else {
-      alert('Erreur audio pour l’étape ' + stepId + '. Ouvre la console (F12) et copie le message exact.');
-    }
-
-    currentAudio = null;
-  });
 }
 
-// ═══════════════════════════════════════════
-// STAR BURST
-// ═══════════════════════════════════════════
+function stopQR() {
+  if (qrFrame) { cancelAnimationFrame(qrFrame); qrFrame = null; }
+  if (qrStream) { qrStream.getTracks().forEach(t => t.stop()); qrStream = null; }
+  // Masque tous les viewports ouverts
+  document.querySelectorAll('.qr-viewport.active').forEach(v => v.classList.remove('active'));
+}
+
+// ══════════════════════════════════════════════
+// AUDIO
+// ══════════════════════════════════════════════
+function playUrl(url) {
+  if (!url) return;
+  const a = new Audio(url);
+  a.play().catch(() => {});
+}
+
+function toggleAud(sid) {
+  const btn  = document.getElementById(`audBtn-${sid}`);
+  const wave = document.getElementById(`wave-${sid}`);
+  const url  = AUDIO[sid];
+
+  if (!url) {
+    if (btn) { const l = btn.querySelector('.a-lbl'); if (l) l.textContent = '⚠️ Audio non configuré'; btn.style.opacity = '.5'; }
+    return;
+  }
+
+  // Pause en cours
+  if (curAud && !curAud.paused) {
+    curAud.pause();
+    const pb = document.getElementById(`audBtn-${curAud._sid}`);
+    const pw = document.getElementById(`wave-${curAud._sid}`);
+    pb?.classList.remove('playing');
+    pw?.classList.add('hidden');
+    if (pb) { const l = pb.querySelector('.a-lbl'); if (l) l.textContent = 'Message du Lapin Magique'; }
+    if (curAud._sid === sid) { curAud = null; return; }
+  }
+
+  if (!audElems[sid]) {
+    audElems[sid] = new Audio(url);
+    audElems[sid]._sid = sid;
+    audElems[sid].addEventListener('ended', () => {
+      btn?.classList.remove('playing');
+      wave?.classList.add('hidden');
+      if (btn) { const l = btn.querySelector('.a-lbl'); if (l) l.textContent = 'Message du Lapin Magique'; }
+    });
+  }
+
+  curAud = audElems[sid];
+  curAud._sid = sid;
+  curAud.play().catch(() => {});
+  if (btn)  { btn.classList.add('playing'); const l = btn.querySelector('.a-lbl'); if (l) l.textContent = '🎵 En lecture…'; }
+  if (wave) wave.classList.remove('hidden');
+}
+
+// ══════════════════════════════════════════════
+// VALIDATION
+// ══════════════════════════════════════════════
+function changeNum(sid, d) {
+  if (!numVals[sid]) numVals[sid] = 0;
+  numVals[sid] = Math.max(0, numVals[sid] + d);
+  const el = document.getElementById(`numDisp-${sid}`);
+  if (el) el.textContent = numVals[sid];
+}
+
+function valNum(sid) {
+  if (!fpCheck(sid)) return;
+  const s = STEPS.find(x => x.id === sid);
+  if ((numVals[sid] || 0) === s.ans) {
+    showFb(sid, '✅ ' + s.ok, true);
+    stars(document.getElementById(`fb-${sid}`));
+    if (s.secret) { unlockSlot(s.sIdx, s.sVal); document.getElementById(`sec-${sid}`)?.classList.add('show'); }
+    document.getElementById(`nxt-${sid}`)?.classList.remove('hidden');
+  } else {
+    showFb(sid, '❌ ' + s.ko, false);
+    setTimeout(() => hideFb(sid), 2500);
+  }
+}
+
+function valText(sid) {
+  if (!fpCheck(sid)) return;
+  const s   = STEPS.find(x => x.id === sid);
+  const inp = document.getElementById(`ans-${sid}`);
+  const val = (inp?.value || '').trim().toUpperCase();
+  if (val === s.ans) {
+    inp?.classList.add('good');
+    showFb(sid, '✅ ' + s.ok, true);
+    stars(inp);
+    document.getElementById(`nxt-${sid}`)?.classList.remove('hidden');
+  } else {
+    inp?.classList.add('bad');
+    showFb(sid, '❌ ' + s.ko, false);
+    setTimeout(() => { inp?.classList.remove('bad'); hideFb(sid); }, 2500);
+  }
+}
+
+function valAction(sid) {
+  if (!fpCheck(sid)) return;
+  showFb(sid, '✅ Mission accomplie avec brio ! 🌟', true);
+  stars(document.getElementById(`fb-${sid}`));
+  document.getElementById(`nxt-${sid}`)?.classList.remove('hidden');
+}
+
+function showFb(sid, msg, ok) {
+  const el = document.getElementById(`fb-${sid}`);
+  if (!el) return; el.textContent = msg; el.className = 'fb ' + (ok ? 'ok' : 'err');
+}
+function hideFb(sid) {
+  const el = document.getElementById(`fb-${sid}`); if (el) el.style.display = 'none';
+}
+
+// ══════════════════════════════════════════════
+// NUMPAD
+// ══════════════════════════════════════════════
+let npadCode = '';
+function npadPress(d) { if (npadCode.length < 3) { npadCode += d; npadUpdate(); } }
+function npadDel()    { npadCode = npadCode.slice(0, -1); npadUpdate(); }
+function npadUpdate() {
+  for (let i = 0; i < 3; i++) {
+    const el = document.getElementById('nd' + i);
+    if (el) { el.textContent = npadCode[i] || ''; el.classList.toggle('on', !!npadCode[i]); }
+  }
+}
+function npadOK() {
+  if (npadCode === '762') {
+    showFb(14, '🏆 CODE CORRECT ! Le trésor est déverrouillé !', true);
+    stars(document.getElementById('fb-14'));
+    setTimeout(showFinal, 1500);
+  } else {
+    showFb(14, '❌ Code incorrect... regardez vos cercles dorés !', false);
+    npadCode = ''; npadUpdate();
+    setTimeout(() => hideFb(14), 2200);
+  }
+}
+
+// ══════════════════════════════════════════════
+// SLOTS
+// ══════════════════════════════════════════════
+function unlockSlot(idx, val) {
+  if (unlocked[idx]) return;
+  unlocked[idx] = true;
+  const el = document.getElementById('slot-' + idx);
+  if (el) { el.textContent = val; el.classList.add('filled'); confetti(); }
+}
+
+// ══════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════
+function goNext() {
+  stopQR();
+  const s = STEPS.find(x => x.id === step);
+  document.getElementById('celIco').textContent = s?.celIco || '🎉';
+  document.getElementById('celTtl').textContent = s?.celTtl || 'Bravo !';
+  document.getElementById('celMsg').textContent = s?.celMsg || 'Continuez !';
+  document.getElementById('celebration').classList.add('show');
+  confetti();
+}
+
+document.getElementById('celNxt').addEventListener('click', () => {
+  document.getElementById('celebration').classList.remove('show');
+  step++;
+  if (step <= 14) render(STEPS[step - 1]);
+});
+
+function showFinal() {
+  confetti();
+  document.getElementById('finalScreen').classList.add('show');
+  setTimeout(confetti, 700);
+  setTimeout(confetti, 1600);
+  setTimeout(confetti, 2600);
+}
+
+function updateProg() {
+  document.getElementById('progBar').style.width = ((step - 1) / 14 * 100) + '%';
+  document.getElementById('progTxt').textContent = `Étape ${step} / 14`;
+}
+
+// ══════════════════════════════════════════════
+// ÉTOILES (success burst)
+// ══════════════════════════════════════════════
 const STAR_E = ['⭐','✨','🌟','💫','🎉','🥚','🌸','🎀'];
-function burstStars(anchor) {
+function stars(anchor) {
   if (!anchor) return;
   const r = anchor.getBoundingClientRect();
   const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
@@ -850,32 +924,32 @@ function burstStars(anchor) {
     const s = document.createElement('div');
     s.className = 'star';
     s.textContent = STAR_E[Math.floor(Math.random() * STAR_E.length)];
-    s.style.cssText = `left:${cx}px;top:${cy}px;font-size:${1.2 + Math.random()}rem;animation-delay:${i * .06}s;animation-duration:.7s`;
+    s.style.cssText = `left:${cx}px;top:${cy}px;font-size:${1.2+Math.random()}rem;animation-delay:${i*.06}s;animation-duration:.7s`;
     document.body.appendChild(s);
     s.addEventListener('animationend', () => s.remove());
   }
 }
 
-// ═══════════════════════════════════════════
+// ══════════════════════════════════════════════
 // CONFETTI
-// ═══════════════════════════════════════════
-function launchConfetti() {
-  const colors = ['#FF85A1','#FFD93D','#6BCB77','#C77DFF','#4D96FF','#FF9A3C','#FFB3C6','#B8F5CC','#EDD5FF'];
+// ══════════════════════════════════════════════
+function confetti() {
+  const cols = ['#FF85A1','#FFD93D','#6BCB77','#C77DFF','#4D96FF','#FF9A3C','#FFB3C6','#B8F5CC','#EDD5FF'];
   for (let i = 0; i < 55; i++) {
     const p = document.createElement('div');
-    p.className = 'confetti-piece';
+    p.className = 'conf';
     const sz = 5 + Math.random() * 10;
-    p.style.cssText = `left:${Math.random()*100}vw;width:${sz}px;height:${sz}px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.3+Math.random()*2.2}s;animation-delay:${Math.random()*.6}s;transform:rotate(${Math.random()*360}deg);border-radius:${Math.random()>.5?'50%':'3px'}`;
+    p.style.cssText = `left:${Math.random()*100}vw;width:${sz}px;height:${sz}px;background:${cols[~~(Math.random()*cols.length)]};animation-duration:${1.3+Math.random()*2.2}s;animation-delay:${Math.random()*.6}s;transform:rotate(${Math.random()*360}deg);border-radius:${Math.random()>.5?'50%':'3px'}`;
     document.body.appendChild(p);
     p.addEventListener('animationend', () => p.remove());
   }
 }
 
-// ═══════════════════════════════════════════
+// ══════════════════════════════════════════════
 // INIT
-// ═══════════════════════════════════════════
-createBgEggs();
-renderStep(STEPS[0]);
+// ══════════════════════════════════════════════
+initBg();
+render(STEPS[0]);
 </script>
 </body>
 </html>
