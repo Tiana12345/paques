@@ -397,10 +397,10 @@ const STEPS = [
     celIco:'🌋', celTtl:'Survivants !', celMsg:'Vous avez traversé la lave sans brûler !' },
 
   { id:11, loc:'La Salle de Bain',  ico:'🪞', col:'c11',
-    txt:'Un miroir magique révèle un message secret ! Regardez le mot ci-dessous dans le miroir pour le lire correctement.',
-    type:'mirror', ans:'JE SUIS LE LAPIN DE PÂQUES',
-    ok:'Brillant ! Le miroir ne ment pas ! 🐰', ko:'Regardez le mot dans le miroir... lisez ce que vous voyez !',
-    celIco:'🪞', celTtl:'Mystérieux !', celMsg:'Le miroir révèle JE SUIS LE LAPIN DE PÂQUES !' },
+    txt:'Un miroir magique cache un message secret. Lis ce que montre le reflet pour découvrir la phrase.',
+    type:'mirror', ans:'J\'AIME LES CAROTTES', mirror:'J\'AIME LES CAROTTES',
+    ok:'Brillant ! Le reflet a parlé ! 🐰', ko:'Non, ce n\'est pas ce que montre le miroir. Regarde le reflet encore une fois.',
+    celIco:'🪞', celTtl:'Mystérieux !', celMsg:'Le miroir révèle : J\'AIME LES CAROTTES !' },
 
   { id:12, loc:'La Terrasse',       ico:'🎭', col:'c12',
     txt:'Pour débloquer cette étape, les enfants doivent faire un spectacle Zootopie devant au moins 3 adultes ! Après le spectacle, demandez le code secret aux adultes.',
@@ -583,13 +583,14 @@ function buildContent(s) {
       break;
 
     case 'mirror':
+      const mirrorText = s.mirror || s.ans;
       h += audioBtn(s.id) + `
         <div class="mirror-box">
-          <div class="mirror-txt">LAPIN</div>
-          <div class="mirror-lbl">🪞 Lisez ce mot dans le miroir</div>
+          <div class="mirror-txt">${mirrorText}</div>
+          <div class="mirror-lbl">🪞 Lisez le reflet pour savoir quoi écrire</div>
         </div>
         <input class="ans-input" id="ans-${s.id}" type="text"
-          placeholder="CE QUE VOUS LISEZ" maxlength="20"
+          placeholder="CE QUE VOUS LISEZ" maxlength="30"
           oninput="this.value=this.value.toUpperCase()"/>
         <button class="val-btn" onclick="valText(${s.id})">✅ Valider ma réponse</button>
         <div class="fb" id="fb-${s.id}"></div>
